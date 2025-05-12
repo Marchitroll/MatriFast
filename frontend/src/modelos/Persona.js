@@ -1,4 +1,5 @@
 import Documento from './Documento';
+import SEXOS from './enums/Sexos';
 
 class Persona {
     #id;
@@ -75,9 +76,8 @@ class Persona {
 
     get sexo() { return this.#sexo; }
     set sexo(valor) { 
-        const sexosValidos = ['M', 'F', 'O']; // Masculino, Femenino, Otro
-        if (!sexosValidos.includes(valor)) {
-            throw new TypeError(`El valor de sexo debe ser uno de: ${sexosValidos.join(', ')}`);
+        if (!Object.values(SEXOS).includes(valor)) {
+            throw new TypeError(`El valor de sexo debe ser uno de: ${Object.values(SEXOS).join(', ')}`);
         }
         this.#sexo = valor; 
     }

@@ -1,10 +1,5 @@
 import Persona from './Persona';
-
-// Definición de roles permitidos
-export const ROLES_USUARIO = {
-    DOCENTE: 'Docente',
-    REPRESENTANTE_LEGAL: 'Representante legal'
-};
+import ROLES_USUARIO from './enums/RolesUsuario';
 
 // --- Clase Usuario ---
 

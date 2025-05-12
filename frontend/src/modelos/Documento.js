@@ -3,6 +3,7 @@ import ValidadorCE from './Validadores/ValidadorCE';
 import ValidadorPTP from './Validadores/ValidadorPTP';
 import ValidadorCodigoEstudiante from './Validadores/ValidadorCodigoEstudiante';
 import ValidadorGenerico from './Validadores/ValidadorGenerico';
+import TIPOS_DOCUMENTO from './enums/TiposDocumento.js'; // Nueva importación
 
 class Documento {
     #tipo;
@@ -21,6 +22,7 @@ class Documento {
         if (tipo == null) throw new Error("El tipo de documento no puede ser nulo o indefinido");
         if (typeof tipo !== 'string') throw new Error("El tipo de documento debe ser una cadena de texto");
         const t = tipo.trim().toUpperCase();
+        // La validación ahora usará el nuevo getTiposDocumento basado en el enum
         if (!Documento.getTiposDocumento().includes(t)) {
             throw new Error(`Tipo de documento inválido: "${tipo}"`);
         }
@@ -41,6 +43,7 @@ class Documento {
         if (valor == null) throw new Error("El tipo de documento no puede ser nulo o indefinido");
         if (typeof valor !== 'string') throw new Error("El tipo de documento debe ser una cadena de texto");
         const t = valor.trim().toUpperCase();
+        // La validación ahora usará el nuevo getTiposDocumento basado en el enum
         if (!Documento.getTiposDocumento().includes(t)) {
             throw new Error(`Tipo de documento inválido: "${valor}"`);
         }
@@ -111,13 +114,11 @@ class Documento {
         };
     }
     /**
-     * Devuelve dinámicamente los tipos soportados (claves del mapa),
-     * añadiendo 'OTRO' si no existiese.
+     * Devuelve los tipos de documento soportados desde el enum.
      * @returns {string[]}
      */
     static getTiposDocumento() {
-        const tipos = Object.keys(Documento.#validadoresMap);
-        return tipos.includes('OTRO') ? [...tipos] : [...tipos, 'OTRO'];
+        return Object.values(TIPOS_DOCUMENTO);
     }
 }
 
