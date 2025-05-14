@@ -3,6 +3,7 @@ import listaDeSexosPermitidos from "../modelos/enums/Sexos";
 import listaDeTiposDiscapacidad from "../modelos/enums/TiposDiscapacidad";
 import listaDeTiposDocumentoPermitidos from "../modelos/enums/TiposDocumento";
 import listaDeTiposIngresoPermitidos from "../modelos/enums/TiposIngreso";
+import listaDeTiposRelacionPermitidos from "../modelos/enums/TiposRelacion";
 
 function Test() {
     return (
@@ -24,10 +25,15 @@ function Test() {
             <h3>Tipos de discapacidad permitidos</h3>
             <ul>
                 {listaDeTiposDiscapacidad.map(t => <li key={t}>{t}</li>)}
-            </ul>
+            </ul>           
             <h3>Tipos de ingreso permitidos</h3>
             <ul>
                 {listaDeTiposIngresoPermitidos.map(t => <li key={t}>{t}</li>)}
+            </ul>
+            
+            <h3>Tipos de relación permitidos</h3>
+            <ul>
+                {listaDeTiposRelacionPermitidos.map(t => <li key={t}>{t}</li>)}
             </ul>
         </div>
     );
