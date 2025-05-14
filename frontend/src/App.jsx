@@ -4,6 +4,7 @@ import Home from "./paginas/Home";
 import Login from "./paginas/Login";
 import Register from "./paginas/Register";
 import Formulario from "./paginas/Formulario";
+import Test from "./paginas/Test";
 
 export default function App() {
     return (
@@ -20,6 +21,8 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/formulario" element={<Formulario />} />
+                <Route path="/test" element={<Test />} />
+                <Route path="*" element={<h2>404 - Página no encontrada</h2>} />
             </Routes>
         </BrowserRouter>
     )
