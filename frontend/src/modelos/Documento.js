@@ -3,7 +3,7 @@ import ValidadorCE from './Validadores/ValidadorCE';
 import ValidadorPTP from './Validadores/ValidadorPTP';
 import ValidadorCodigoEstudiante from './Validadores/ValidadorCodigoEstudiante';
 import ValidadorGenerico from './Validadores/ValidadorGenerico';
-import TIPOS_DOCUMENTO from './enums/TiposDocumento.js'; // Nueva importación
+import TIPOS_DOCUMENTO from './enums/TiposDocumento';
 
 class Documento {
     #tipo;

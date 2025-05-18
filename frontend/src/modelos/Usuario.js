@@ -1,5 +1,5 @@
 import Persona from './Persona';
-import listaDeRolesPermitidos from './enums/RolesUsuario.js';
+import listaDeRolesPermitidos from './enums/RolesUsuario';
 
 // --- Clase Usuario ---
 
@@ -60,16 +60,22 @@ class Usuario extends Persona {
      * @returns {string} El email normalizado (sin espacios y en minúsculas).
      */
     static #validarEmail(email) {
+        if (!email) {
+            throw new TypeError("El email es obligatorio.");
+        }
         if (typeof email !== 'string') {
-            throw new Error("El email debe ser una cadena de texto.");
+            throw new TypeError("El email debe ser una cadena de texto.");
         }
-        const trimmedEmail = email.trim(); // Eliminar espacios al inicio y final
-        const normalizedEmail = trimmedEmail.toLowerCase();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(normalizedEmail)) {
-            throw new Error("Formato de email inválido.");
+        
+        const emailNormalizado = email.trim().toLowerCase();
+        // Expresión regular estándar para validar emails
+        const regexEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        
+        if (!regexEmail.test(emailNormalizado)) {
+            throw new TypeError(`El email "${email}" no tiene un formato válido.`);
         }
-        return normalizedEmail;
+        
+        return emailNormalizado;
     }
 
     /**
@@ -80,17 +86,19 @@ class Usuario extends Persona {
      * @throws {Error} Si el rol no es una cadena de texto o si no está en la lista de roles permitidos.
      */
     #validarRolInterno(rol) { 
+        if (!rol) {
+            throw new TypeError("El rol es obligatorio.");
+        }
         if (typeof rol !== 'string') {
-            throw new Error("El rol debe ser una cadena de texto.");
+            throw new TypeError("El rol debe ser una cadena de texto.");
         }
-        const rolEntradaNormalizado = rol.trim().toLowerCase();
         
-        for (const rolPermitido of listaDeRolesPermitidos) {
-            if (rolPermitido.toLowerCase() === rolEntradaNormalizado) {
-                return rolPermitido; // Devuelve el valor oficial de la lista
-            }
+        const rolNormalizado = rol.trim().toUpperCase();
+        if (!listaDeRolesPermitidos.includes(rolNormalizado)) {
+            throw new TypeError(`El rol "${rol}" no es válido. Roles permitidos: ${listaDeRolesPermitidos.join(', ')}`);
         }
-        throw new Error(`Rol inválido. Los roles permitidos son: ${listaDeRolesPermitidos.join(', ')}`);
+        
+        return rolNormalizado;
     }
 }
 export default Usuario;
