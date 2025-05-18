@@ -11,7 +11,7 @@
  * Si ocurre un error en la consulta, se lanzará una excepción y la aplicación no continuará cargando.
  */
 
-import supabase from '../../config/ClienteSupabase.js';
+import supabase from '../../config/ClienteSupabase';
 
 // Variable para almacenar la lista de tipos de relación permitidos
 let listaDeTiposRelacionPermitidos = null;

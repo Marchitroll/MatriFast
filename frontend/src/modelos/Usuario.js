@@ -1,5 +1,5 @@
 import Persona from './Persona';
-import listaDeRolesPermitidos from './enums/RolesUsuario.js';
+import listaDeRolesPermitidos from './enums/RolesUsuario';
 
 // --- Clase Usuario ---
 

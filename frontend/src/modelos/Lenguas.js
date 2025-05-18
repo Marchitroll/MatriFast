@@ -1,7 +1,7 @@
 /**
  * Clase para representar las lenguas habladas por una persona.
  */
-import TIPOS_LENGUAS from './enums/TiposLenguas.js';
+import TIPOS_LENGUAS from './enums/TiposLenguas';
 
 class Lenguas {
     #lenguaPrincipal;
