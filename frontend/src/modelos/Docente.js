@@ -9,11 +9,6 @@ class Docente extends Usuario {
         // Aquí podríamos inicializar propiedades específicas de Docente si las hubiera
     }
 
-    // Ejemplo de un método específico para Docente
-    presentarse() {
-        return `Hola, soy el docente ${this.nombresCompletos}, con email ${this.email} y rol ${this.rol}.`;
-    }
-
     // Sobrescribimos el método toString para incluir información específica de Docente
     toString() {
         return `Docente: ${super.toString()}`;
