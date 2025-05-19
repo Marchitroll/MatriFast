@@ -1,70 +1,42 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../funcionalidad/AuthContext';
+import { useRegisterForm } from '../hooks/useRegisterForm';
 import AuthPageLayout from '../componentes/AuthPageLayout';
 import AuthFormField from '../componentes/AuthFormField';
 import AuthSubmitButton from '../componentes/AuthSubmitButton';
+import RoleSelect from '../componentes/RoleSelect';
+import RepresentanteLegalFields from '../componentes/RepresentanteLegalFields';
+import DocenteFields from '../componentes/DocenteFields';
 
+/**
+ * Componente para el registro de nuevos usuarios
+ */
 function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false); 
-  const [error, setError] = useState('');
-  const { session, registrarNuevoUsuario, validarEmail, validarPassword } = useAuth();
+  const {
+    email,
+    setEmail,
+    password, 
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    role,
+    roleSpecificData,
+    isLoading,
+    error,
+    handleRoleChange,
+    handleRoleSpecificDataChange,
+    handleSubmit
+  } = useRegisterForm();
+  
+  const { session } = useAuth();
   const navigate = useNavigate();
-
   // Redirigir si ya hay sesión activa
   useEffect(() => {
     if (session) {
       navigate('/');
     }
   }, [session, navigate]);
-
-  const obtenerMensajeErrorUsuario = (errorTecnico) => {
-    if (errorTecnico.includes('already registered')) {
-      return 'El usuario ya se encuentra registrado.';
-    }
-    
-    return 'Error al registrar el usuario. Por favor, inténtelo más tarde.';
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(''); // Limpiar errores previos
-
-    if (!validarEmail(email)) {
-      setError('El formato del correo electrónico no es válido.');
-      return;
-    }
-
-    if (!validarPassword(password)) {
-      setError('La contraseña debe tener más de 6 caracteres.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden.');
-      return;
-    }
-
-    setIsLoading(true); // Iniciar el estado de carga
-    try {
-      const resultado = await registrarNuevoUsuario(email, password);
-      if (resultado.success) {
-        //console.log('Usuario registrado:', resultado.data);
-        navigate('/formulario');
-      } else {
-        console.error('Error de registro:', resultado.error);
-        setError(obtenerMensajeErrorUsuario(resultado.error)); // Mostrar el error en el formulario y consola
-      }
-    } catch (error) {
-      console.error('Error inesperado en handleSubmit:', error);
-      setError('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
-    } finally {
-      setIsLoading(false); // Finalizar el estado de carga
-    }
-  }
 
   return (
     <AuthPageLayout
@@ -100,7 +72,28 @@ function Register() {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
           disabled={isLoading}
+        />        <RoleSelect
+          id="role"
+          value={role}
+          onChange={handleRoleChange}
+          required
+          disabled={isLoading}
         />
+        {/* Campos específicos según rol */}
+        {role === 'REPRESENTANTE LEGAL' && (
+          <RepresentanteLegalFields
+            formData={roleSpecificData}
+            onFormDataChange={handleRoleSpecificDataChange}
+            isLoading={isLoading}
+          />
+        )}
+        {role === 'DOCENTE' && (
+          <DocenteFields
+            formData={roleSpecificData}
+            onFormDataChange={handleRoleSpecificDataChange}
+            isLoading={isLoading}
+          />
+        )}
         <AuthSubmitButton
           isLoading={isLoading}
           loadingText="Registrando..."
