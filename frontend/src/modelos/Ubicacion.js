@@ -22,7 +22,8 @@ class Ubicacion {
             throw new TypeError("El código Ubigeo debe ser una cadena de texto.");
         }
         const ubigeo = valor.trim();
-        if (!/^\d{6}$/.test(ubigeo)) {
+        // permitir vacío o 6 dígitos
+        if (ubigeo !== '' && !/^\d{6}$/.test(ubigeo)) {
             throw new TypeError("El UBIGEO debe tener exactamente 6 dígitos numéricos.");
         }
         this.#codUbigeo = ubigeo;
@@ -86,6 +87,20 @@ class Ubicacion {
             throw new TypeError("El distrito es obligatorio.");
         }
         this.#distrito = dist;
+    }
+
+    toString() {
+        return `${this.#direccion}, ${this.#distrito}, ${this.#provincia}, ${this.#departamento}${this.#codUbigeo ? ' (' + this.#codUbigeo + ')' : ''}`;
+    }
+
+    toPlainObject() {
+        return {
+            codUbigeo: this.#codUbigeo,
+            direccion: this.#direccion,
+            departamento: this.#departamento,
+            provincia: this.#provincia,
+            distrito: this.#distrito
+        };
     }
 }
 
