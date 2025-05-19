@@ -13,8 +13,7 @@ class Estudiante extends Persona {
     #tieneDispositivosElectronicos;
     #tieneInternet;
     #representanteLegalInscriptor;
-    #hermanos;
-    constructor(id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento, lugarNacimiento, lengua, etnia = null, discapacidad = null, domicilioActual, tieneDispositivosElectronicos, tieneInternet, representanteLegalInscriptor, hermanos = []) {
+    constructor(id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento, lugarNacimiento, lengua, etnia = null, discapacidad = null, domicilioActual, tieneDispositivosElectronicos, tieneInternet, representanteLegalInscriptor) {
         super(id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento);
         this.lugarNacimiento = lugarNacimiento;
         this.lengua = lengua;
@@ -24,7 +23,6 @@ class Estudiante extends Persona {
         this.tieneDispositivosElectronicos = tieneDispositivosElectronicos;
         this.tieneInternet = tieneInternet;
         this.representanteLegalInscriptor = representanteLegalInscriptor;
-        this.hermanos = hermanos;
     }
 
     get lugarNacimiento() {
@@ -123,37 +121,12 @@ class Estudiante extends Persona {
         this.#representanteLegalInscriptor = valor;
     }
 
-    get hermanos() {
-        return this.#hermanos;
-    }
-
-    set hermanos(valor) {
-        if (!Array.isArray(valor) || !valor.every(h => h instanceof Estudiante)) {
-            throw new TypeError('El atributo hermanos debe ser un array de instancias de Estudiante.');
-        }
-        this.#hermanos = valor;
-    }
-
     tieneCertificadoValido() {
         return this.#discapacidad !== null && this.#discapacidad !== undefined;
     }
 
-    tieneHermanos() {
-        return this.#hermanos && this.#hermanos.length > 0;
-    }
-
-    agregarHermano(hermano) {
-        if (!(hermano instanceof Estudiante)) {
-            throw new TypeError('El hermano debe ser una instancia de Estudiante.');
-        }
-        if (!this.#hermanos) {
-            this.#hermanos = [];
-        }
-        this.#hermanos.push(hermano);
-    }
-
     toString() {
-        return `Estudiante: ${super.toString()} - Lugar de nacimiento: ${this.#lugarNacimiento ? this.#lugarNacimiento.direccion : 'No especificado'} - Domicilio actual: ${this.#domicilioActual ? this.#domicilioActual.direccion : 'No especificado'} - Lengua: ${this.#lengua ? this.#lengua.toString() : 'No especificado'} - Etnia: ${this.#etnia || 'No especificado'} - Discapacidad: ${this.#discapacidad ? this.#discapacidad.toString() : 'No especificado'} - Dispositivos electrónicos: ${this.#tieneDispositivosElectronicos ? 'Sí' : 'No'} - Internet: ${this.#tieneInternet ? 'Sí' : 'No'} - Representante legal inscriptor: ${this.#representanteLegalInscriptor ? this.#representanteLegalInscriptor.toString() : 'No especificado'} - Hermanos: ${this.#hermanos && this.#hermanos.length > 0 ? this.#hermanos.length : 'Ninguno'}`;
+        return `Estudiante: ${super.toString()} - Lugar de nacimiento: ${this.#lugarNacimiento ? this.#lugarNacimiento.direccion : 'No especificado'} - Domicilio actual: ${this.#domicilioActual ? this.#domicilioActual.direccion : 'No especificado'} - Lengua: ${this.#lengua ? this.#lengua.toString() : 'No especificado'} - Etnia: ${this.#etnia || 'No especificado'} - Discapacidad: ${this.#discapacidad ? this.#discapacidad.toString() : 'No especificado'} - Dispositivos electrónicos: ${this.#tieneDispositivosElectronicos ? 'Sí' : 'No'} - Internet: ${this.#tieneInternet ? 'Sí' : 'No'} - Representante legal inscriptor: ${this.#representanteLegalInscriptor ? this.#representanteLegalInscriptor.toString() : 'No especificado'}`;
     }
 
     toPlainObject() {
@@ -170,8 +143,7 @@ class Estudiante extends Persona {
             discapacidad: this.#discapacidad ? this.#discapacidad.toPlainObject() : null,
             tieneDispositivosElectronicos: this.#tieneDispositivosElectronicos,
             tieneInternet: this.#tieneInternet,
-            representanteLegalInscriptor: this.#representanteLegalInscriptor ? this.#representanteLegalInscriptor.toPlainObject() : null,
-            hermanos: this.#hermanos ? this.#hermanos.map(h => h.toPlainObject()) : []
+            representanteLegalInscriptor: this.#representanteLegalInscriptor ? this.#representanteLegalInscriptor.toPlainObject() : null
         };
     }
 }
