@@ -1,9 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../funcionalidad/AuthContext";
+import { useEffect } from 'react';
 
 function Formulario() {
   const { session, cerrarSesion } = useAuth();
   const navigate = useNavigate();
+  // Redirigir al login si no hay sesión
+  useEffect(() => {
+    if (session === null) {
+      navigate('/login');
+    }
+  }, [session, navigate]);
+
   // Función para cerrar sesión y redirigir
   const handleLogout = async () => {
     const resultado = await cerrarSesion();

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../funcionalidad/AuthContext';
 import AuthPageLayout from '../componentes/AuthPageLayout';
@@ -10,8 +10,14 @@ function Login() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { iniciarSesion } = useAuth();
+  const { session, iniciarSesion } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (session) {
+      navigate('/'); 
+    }
+  }, [session, navigate]);
 
   const obtenerMensajeErrorUsuario = (errorTecnico) => {
     if (errorTecnico.includes('Invalid login credentials')) {

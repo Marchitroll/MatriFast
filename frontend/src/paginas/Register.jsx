@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../funcionalidad/AuthContext';
 import AuthPageLayout from '../componentes/AuthPageLayout';
@@ -11,8 +11,15 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false); 
   const [error, setError] = useState('');
-  const { registrarNuevoUsuario, validarEmail, validarPassword } = useAuth();
+  const { session, registrarNuevoUsuario, validarEmail, validarPassword } = useAuth();
   const navigate = useNavigate();
+
+  // Redirigir si ya hay sesión activa
+  useEffect(() => {
+    if (session) {
+      navigate('/');
+    }
+  }, [session, navigate]);
 
   const obtenerMensajeErrorUsuario = (errorTecnico) => {
     if (errorTecnico.includes('already registered')) {
