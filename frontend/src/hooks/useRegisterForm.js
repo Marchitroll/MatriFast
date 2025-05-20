@@ -3,7 +3,7 @@
  */
 import { useState } from 'react';
 import { useAuth } from '../funcionalidad/AuthContext';
-import { validarCamposRequeridos, registrarUsuario } from '../servicios/UsuarioService';
+import UsuarioService from '../servicios/UsuarioService';
 
 export function useRegisterForm() {
   const [email, setEmail] = useState('');
@@ -14,6 +14,8 @@ export function useRegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { validarEmail, validarPassword } = useAuth();
+  // Instancia del servicio de usuario
+  const usuarioService = new UsuarioService();
 
   /**
    * Actualiza los datos específicos del rol
@@ -33,8 +35,7 @@ export function useRegisterForm() {
   /**
    * Valida los campos comunes del formulario de registro
    */
-  const validarCamposComunes = () => {
-    if (!validarEmail(email)) {
+  const validarCamposComunes = () => {    if (!validarEmail(email)) {
       return { esValido: false, mensaje: 'El formato del correo electrónico no es válido.' };
     }
     
@@ -59,8 +60,7 @@ export function useRegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // Validar campos comunes
+      // Validar campos comunes
     const { esValido: camposComunesValidos, mensaje: mensajeCamposComunes } = validarCamposComunes();
     if (!camposComunesValidos) {
       setError(mensajeCamposComunes);
@@ -69,7 +69,7 @@ export function useRegisterForm() {
     
     // Validar campos específicos según rol
     const { esValido: camposEspecificosValidos, mensaje: mensajeCamposEspecificos } = 
-      validarCamposRequeridos(role, roleSpecificData);
+      usuarioService.validarCamposRequeridos(role, roleSpecificData);
     if (!camposEspecificosValidos) {
       setError(mensajeCamposEspecificos);
       return;
@@ -85,8 +85,8 @@ export function useRegisterForm() {
         role
       };
       
-      // Registrar usuario (solo para testeo, sin enviar a BD)
-      const resultado = await registrarUsuario(datosUsuario, roleSpecificData);
+      // Registrar usuario usando la instancia de UsuarioService
+      const resultado = await usuarioService.registrarUsuario(datosUsuario, roleSpecificData);
       
       if (!resultado.success) {
         setError(resultado.error || 'Error al procesar el registro');
