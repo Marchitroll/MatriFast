@@ -1,178 +1,31 @@
 /**
- * Servicio para la creación y manejo de objetos de usuario
+ * Servicio principal de usuarios refactorizado según principios SOLID
  */
-import DocenteFactory from '../modelos/Fabricas/DocenteFactory';
-import RepresentanteLegalFactory from '../modelos/Fabricas/RepresentanteLegalFactory';
-import Documento from '../modelos/Documento';
-import Ubicacion from '../modelos/Ubicacion';
-import Lenguas from '../modelos/Lenguas';
-import TIPOS_LENGUAS from '../modelos/enums/TiposLenguas';
+import IUsuarioValidator from '../modelos/interfaces/IUsuarioValidator';
+import IUsuarioCreator from '../modelos/interfaces/IUsuarioCreator';
+import IUsuarioPersistence from '../modelos/interfaces/IUsuarioPersistence';
+import UsuarioValidator from './UsuarioValidator';
+import UsuarioCreator from './UsuarioCreator';
+import UsuarioPersistence from './UsuarioPersistence';
+import supabase from '../config/ClienteSupabase';
+import logger from './Logger';
 
 /**
  * Clase que implementa el servicio para la creación y manejo de objetos de usuario
+ * Refactorizado para seguir principios SOLID
  */
 class UsuarioService {
   /**
-   * Constructor del servicio
+   * Constructor del servicio de usuarios
+   * @param {IUsuarioValidator} validator - Validador de usuarios
+   * @param {IUsuarioCreator} creator - Creador de objetos de dominio
+   * @param {IUsuarioPersistence} persistence - Servicio de persistencia
    */
-  constructor() {
-    // Se podría inicializar dependencias aquí si fuera necesario
-  }
-  /**
-   * Crea un objeto Documento a partir de los datos del formulario
-   * @param {object} formData Datos del formulario
-   * @returns {object} { documento, error }
-   * @private
-   */
-  #crearDocumento(formData) {
-    try {
-      const documento = new Documento(formData.tipoDocumento, formData.numeroDocumento);
-      return { documento, error: null };
-    } catch (error) {
-      console.error('Error al crear documento:', error);
-      return { documento: null, error: error.message };
-    }
-  }
-  /**
-   * Crea un objeto Ubicacion a partir de los datos del formulario
-   * @param {object} formData Datos del formulario
-   * @returns {object} { ubicacion, error }
-   * @private
-   */
-  #crearUbicacion(formData) {
-    try {
-      const ubicacion = new Ubicacion(
-        formData.codUbigeo || '',
-        formData.direccion,
-        formData.departamento,
-        formData.provincia,
-        formData.distrito
-      );
-      return { ubicacion, error: null };
-    } catch (error) {
-      console.error('Error al crear ubicación:', error);
-      return { ubicacion: null, error: error.message };
-    }
-  }
-  /**
-   * Crea un objeto Lenguas a partir de los datos del formulario
-   * @param {object} formData Datos del formulario
-   * @returns {object} { perfilLinguistico, error }
-   * @private
-   */
-  #crearPerfilLinguistico(formData) {
-    try {
-      const lenguaPrincipalValue = TIPOS_LENGUAS[formData.lenguaPrincipal];
-      const lenguaSecundariaValue = formData.lenguaSecundaria ? TIPOS_LENGUAS[formData.lenguaSecundaria] : null;
-
-      if (!lenguaPrincipalValue) {
-        const error = `Valor de lengua principal no encontrado: ${formData.lenguaPrincipal}`;
-        return { perfilLinguistico: null, error };
-      }
-
-      if (formData.lenguaSecundaria && !lenguaSecundariaValue) {
-        const error = `Valor de lengua secundaria no encontrado: ${formData.lenguaSecundaria}`;
-        return { perfilLinguistico: null, error };
-      }
-
-      const perfilLinguistico = new Lenguas(lenguaPrincipalValue, lenguaSecundariaValue);
-      return { perfilLinguistico, error: null };
-    } catch (error) {
-      console.error('Error al crear perfil lingüístico:', error);
-      return { perfilLinguistico: null, error: error.message };
-    }
-  }
-  /**
-   * Crea un objeto Docente a partir de los datos del formulario
-   * @param {object} datosUsuario Datos comunes del usuario
-   * @param {object} datosDocente Datos específicos del docente
-   * @param {Documento} documento Objeto Documento
-   * @returns {object} { docente, error }
-   * @private
-   */
-  #crearDocente(datosUsuario, datosDocente, documento) {
-    try {
-      const { email, role } = datosUsuario;
-      const { nombres, aPaterno, aMaterno, fechaNacimiento, sexo } = datosDocente;
-      
-      // Aplicación del Patrón Factory Method:
-      // Se instancia la fábrica específica para Docentes.
-      const docenteFactory = new DocenteFactory();
-      const userId = 'id-temporal-para-pruebas';
-      
-      // La fábrica se encarga de la creación del objeto Docente.
-      const nuevoDocente = docenteFactory.crearUsuario(
-        userId,
-        nombres,
-        aPaterno,
-        aMaterno,
-        fechaNacimiento,
-        sexo,
-        documento,
-        email,
-        role
-      );
-      
-      return { docente: nuevoDocente, error: null };
-    } catch (error) {
-      console.error('Error al crear docente:', error);
-      return { docente: null, error: error.message };
-    }
-  }
-  /**
-   * Crea un objeto RepresentanteLegal a partir de los datos del formulario
-   * @param {object} datosUsuario Datos comunes del usuario
-   * @param {object} datosRL Datos específicos del representante legal
-   * @param {Documento} documento Objeto Documento
-   * @param {Ubicacion} ubicacion Objeto Ubicacion
-   * @param {Lenguas} perfilLinguistico Objeto Lenguas
-   * @returns {object} { representanteLegal, error }
-   * @private
-   */
-  #crearRepresentanteLegal(datosUsuario, datosRL, documento, ubicacion, perfilLinguistico) {
-    try {
-      const { email, role } = datosUsuario;
-      const { 
-        nombres, 
-        aPaterno, 
-        aMaterno, 
-        fechaNacimiento, 
-        sexo, 
-        tipoRelacion,
-        numeroCelular,
-        etnia,
-        viveConEstudiante
-      } = datosRL;
-      
-      // Aplicación del Patrón Factory Method:
-      // Se instancia la fábrica específica para Representantes Legales.
-      const representanteLegalFactory = new RepresentanteLegalFactory();
-      const userId = 'id-temporal-para-pruebas';
-      
-      // La fábrica se encarga de la creación del objeto RepresentanteLegal.
-      const nuevoRL = representanteLegalFactory.crearUsuario(
-        userId,
-        nombres,
-        aPaterno,
-        aMaterno || null,
-        fechaNacimiento,
-        sexo,
-        documento,
-        email,
-        role,
-        tipoRelacion,
-        ubicacion,
-        perfilLinguistico,
-        etnia || null,
-        numeroCelular,
-        !!viveConEstudiante
-      );
-      
-      return { representanteLegal: nuevoRL, error: null };
-    } catch (error) {
-      console.error('Error al crear representante legal:', error);
-      return { representanteLegal: null, error: error.message };
-    }
+  constructor(validator = null, creator = null, persistence = null) {
+    // Inyección de dependencias
+    this.validator = validator || new UsuarioValidator();
+    this.creator = creator || new UsuarioCreator();
+    this.persistence = persistence || new UsuarioPersistence(supabase);
   }  /**
    * Valida los campos requeridos para el registro
    * @param {string} role Rol del usuario
@@ -180,122 +33,71 @@ class UsuarioService {
    * @returns {object} { esValido, mensaje }
    */
   validarCamposRequeridos(role, formData) {
-    let requiredFields = [];
-    
-    if (role === 'DOCENTE') {
-      requiredFields = [
-        'nombres', 'aPaterno', 'fechaNacimiento', 'sexo',
-        'tipoDocumento', 'numeroDocumento'
-      ];
-    } else if (role === 'REPRESENTANTE LEGAL') {
-      requiredFields = [
-        'nombres', 'aPaterno', 'fechaNacimiento', 'sexo', // Persona
-        'tipoDocumento', 'numeroDocumento', // Documento
-        'tipoRelacion', 'numeroCelular', // RepresentanteLegal específico
-        'departamento', 'provincia', 'distrito', 'direccion', // Ubicacion
-        'lenguaPrincipal' // Lenguas
-      ];
-    } else {
-      return { esValido: false, mensaje: `Rol ${role} no soportado para validación` };
-    }
-    
-    for (const field of requiredFields) {
-      if (!formData[field]) {
-        const fieldName = field.replace(/([A-Z])/g, ' $1').toLowerCase();
-        return { 
-          esValido: false, 
-          mensaje: `Por favor, complete el campo requerido: ${fieldName}.` 
-        };
-      }
-    }
-    
-    return { esValido: true, mensaje: null };
+    return this.validator.validarCamposRequeridos(role, formData);
   }
-
   /**
-   * Registra un nuevo usuario (solo para testeo)
+   * Registra un nuevo usuario (solo crea objetos de dominio)
    * @param {object} datosUsuario Datos comunes del usuario
    * @param {object} datosEspecificos Datos específicos según el rol
-   * @returns {object} Resultado del registro
+   * @returns {Promise<object>} Resultado del registro
    */
-  async registrarUsuario(datosUsuario, datosEspecificos) {    const { role } = datosUsuario;
-    let resultado = { success: false, error: null, data: null };
-    
+  async registrarUsuario(datosUsuario, datosEspecificos) {
     // Validar campos antes de cualquier otra operación
-    const validacion = this.validarCamposRequeridos(role, datosEspecificos);
+    const validacion = this.validarCamposRequeridos(datosUsuario.role, datosEspecificos);
     if (!validacion.esValido) {
-      resultado.error = validacion.mensaje;
+      return { success: false, error: validacion.mensaje };
+    }
+    
+    // Delegar la creación de objetos al servicio especializado
+    return await this.creator.crearUsuario(datosUsuario, datosEspecificos);
+  }  /**
+   * Registra un nuevo usuario (completo, incluyendo persistencia)
+   * @param {object} datosUsuario Datos comunes del usuario
+   * @param {object} datosEspecificos Datos específicos según el rol
+   * @returns {Promise<object>} Resultado del registro
+   */
+  async registrarUsuarioCompleto(datosUsuario, datosEspecificos) {
+    // 1. Primero crear los objetos de dominio usando el método existente
+    const resultado = await this.registrarUsuario(datosUsuario, datosEspecificos);
+    if (!resultado.success) {
       return resultado;
     }
     
+    // 2. Luego persistir los datos según el rol
+    const { role } = datosUsuario;
+    
     if (role === 'DOCENTE') {
-      // Crear documento
-      const { documento, error: docError } = this.#crearDocumento(datosEspecificos);
-      if (docError) {
-        resultado.error = `Error al crear el documento: ${docError}`;
-        return resultado;
+      logger.info('Iniciando persistencia de docente');
+      const persistenciaResult = await this.persistence.persistirDocente(resultado.data.docente);
+      
+      if (!persistenciaResult.success) {
+        logger.error('Error al persistir docente', persistenciaResult.error);
+        return {
+          success: false,
+          error: `Error al guardar en base de datos: ${persistenciaResult.error}`,
+          data: resultado.data // Incluir los objetos creados para posible uso
+        };
       }
       
-      // Crear docente
-      const { docente, error: docenteError } = this.#crearDocente(datosUsuario, datosEspecificos, documento);
-      if (docenteError) {
-        resultado.error = `Error al procesar datos del docente: ${docenteError}`;
-        return resultado;
-      }
-      
-      // Éxito
-      resultado.success = true;
-      resultado.data = { docente, documento };
-      console.log('Objeto Documento creado:', documento);
-      console.log('Objeto Docente creado:', docente);
-      console.log('Objeto Docente (plain):', docente.toPlainObject());
-        } else if (role === 'REPRESENTANTE LEGAL') {
-      // Crear documento
-      const { documento, error: docError } = this.#crearDocumento(datosEspecificos);
-      if (docError) {
-        resultado.error = `Error al crear el documento: ${docError}`;
-        return resultado;
-      }
-      
-      // Crear ubicación
-      const { ubicacion, error: ubicacionError } = this.#crearUbicacion(datosEspecificos);
-      if (ubicacionError) {
-        resultado.error = `Error al crear la ubicación: ${ubicacionError}`;
-        return resultado;
-      }
-      
-      // Crear perfil lingüístico
-      const { perfilLinguistico, error: lenguasError } = this.#crearPerfilLinguistico(datosEspecificos);
-      if (lenguasError) {
-        resultado.error = `Error al crear el perfil lingüístico: ${lenguasError}`;
-        return resultado;
-      }
-      
-      // Crear representante legal
-      const { representanteLegal, error: rlError } = this.#crearRepresentanteLegal(
-        datosUsuario, 
-        datosEspecificos, 
-        documento, 
-        ubicacion, 
-        perfilLinguistico
-      );
-      if (rlError) {
-        resultado.error = `Error al procesar datos del Representante Legal: ${rlError}`;
-        return resultado;
-      }
-      
-      // Éxito
-      resultado.success = true;
-      resultado.data = { representanteLegal, documento, ubicacion, perfilLinguistico };
-      console.log('Objeto Documento creado (RL):', documento);
-      console.log('Objeto Ubicacion creado (RL):', ubicacion);
-      console.log('Objeto Lenguas creado (RL):', perfilLinguistico);
-      console.log('Objeto RepresentanteLegal creado:', representanteLegal);
-      console.log('Objeto RepresentanteLegal (plain):', representanteLegal.toPlainObject());
-    } else {
-      resultado.error = `Rol "${role}" no reconocido.`;
+      // Combinar el resultado original con los IDs de la base de datos
+      return {
+        success: true,
+        data: {
+          ...resultado.data,
+          idPersona: persistenciaResult.data.idPersona,
+          idUsuario: persistenciaResult.data.idUsuario
+        }
+      };
+    } else if (role === 'REPRESENTANTE LEGAL') {
+      // Implementar cuando se necesite
+      return {
+        success: false,
+        error: 'Persistencia de representante legal no implementada todavía',
+        data: resultado.data
+      };
     }
     
+    // Para otros roles, solo retornar el resultado original
     return resultado;
   }
 }
