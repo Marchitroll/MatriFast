@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../funcionalidad/AuthContext";
 import { useEffect } from 'react';
+import FormularioMatricula from '../componentes/FormularioMatricula';
 
 function Formulario() {
   const { session, cerrarSesion } = useAuth();
@@ -12,6 +13,7 @@ function Formulario() {
     }
   }, [session, navigate]);
 
+  
   // Función para cerrar sesión y redirigir
   const handleLogout = async () => {
     const resultado = await cerrarSesion();
@@ -29,6 +31,9 @@ function Formulario() {
       <button onClick={handleLogout} disabled={!session} className="logout-button">
         Cerrar sesión
       </button>
+
+      {/* Solo mostrar el formulario si hay sesión activa */}
+      {session && <FormularioMatricula />}
     </div>
   );
 }
