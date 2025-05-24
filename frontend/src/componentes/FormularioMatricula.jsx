@@ -1,67 +1,248 @@
-// src/componentes/FormularioMatricula.jsx
-import { useState } from 'react';
+import PropTypes from 'prop-types';
 import AuthFormField from './AuthFormField';
-import AuthSubmitButton from './AuthSubmitButton';
+import TIPOINGRESO from '../modelos/enums/TiposIngreso';
+import MODALIDAD from '../modelos/enums/Modalidad';
+import EXONERACION from '../modelos/enums/TiposDiscapacidad'; // O crea otro enum específico si no aplica este
 
-function FormularioMatricula() {
-    const [formData, setFormData] = useState({});
+function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
+  return (
+    <div className="formulario-campos">
 
-    const handleChange = (campo, valor) => {
-        setFormData(prev => ({ ...prev, [campo]: valor }));
-    };
+      <h3>Datos del Estudiante</h3>
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Datos de matrícula:', formData);
-        // Aquí puedes enviar los datos a Supabase
-    };
+      <AuthFormField
+        label="Nombre(s)"
+        id="nombres"
+        type="text"
+        value={formData.nombres || ''}
+        onChange={(e) => onFormDataChange('nombres', e.target.value)}
+        disabled={isLoading}
+      />
 
-    return (
-        <form className="matricula-form" onSubmit={handleSubmit}>
-            <div className="formulario-campos">
-                <h3>Datos del Servicio Educativo</h3>
-                <div classname="campo">
-                    
-                        <AuthFormField label="Nombre del Servicio Educativo" type="text" id="nombreServicio" value={formData.nombreServicio || ''} onChange={e => handleChange('nombreServicio', e.target.value)} />
-                   
-                </div>
-                <AuthFormField label="Resolución de creación" type="text" id="resolucionCreacion" value={formData.resolucionCreacion || ''} onChange={e => handleChange('resolucionCreacion', e.target.value)} />
-                <AuthFormField label="Código de IE" type="text" id="codigoIE" value={formData.codigoIE || ''} onChange={e => handleChange('codigoIE', e.target.value)} />
-                <AuthFormField label="Código Modular" type="text" id="codigoModular" value={formData.codigoModular || ''} onChange={e => handleChange('codigoModular', e.target.value)} />
+      <AuthFormField
+        label="Apellido Paterno"
+        id="aPaterno"
+        type="text"
+        value={formData.aPaterno || ''}
+        onChange={(e) => onFormDataChange('aPaterno', e.target.value)}
+        disabled={isLoading}
+      />
 
-                <h3>Datos del Estudiante</h3>
-                <AuthFormField label="Apellido Paterno" type="text" id="aPaterno" value={formData.aPaterno || ''} onChange={e => handleChange('aPaterno', e.target.value)} />
-                <AuthFormField label="Apellido Materno" type="text" id="aMaterno" value={formData.aMaterno || ''} onChange={e => handleChange('aMaterno', e.target.value)} />
-                <AuthFormField label="Nombre(s)" type="text" id="nombres" value={formData.nombres || ''} onChange={e => handleChange('nombres', e.target.value)} />
-                <AuthFormField label="Sexo" type="text" id="sexo" value={formData.sexo || ''} onChange={e => handleChange('sexo', e.target.value)} />
-                <AuthFormField label="Fecha de Nacimiento" type="date" id="fechaNacimiento" value={formData.fechaNacimiento || ''} onChange={e => handleChange('fechaNacimiento', e.target.value)} />
-                <AuthFormField label="Lugar de Nacimiento (Dep/Prov/Dist)" type="text" id="lugarNacimiento" value={formData.lugarNacimiento || ''} onChange={e => handleChange('lugarNacimiento', e.target.value)} />
-                <AuthFormField label="Código UBIGEO de Nacimiento" type="text" id="ubigeoNacimiento" value={formData.ubigeoNacimiento || ''} onChange={e => handleChange('ubigeoNacimiento', e.target.value)} />
-                <AuthFormField label="Tipo de Documento" type="text" id="tipoDocumento" value={formData.tipoDocumento || ''} onChange={e => handleChange('tipoDocumento', e.target.value)} />
-                <AuthFormField label="Número de Documento" type="text" id="numeroDocumento" value={formData.numeroDocumento || ''} onChange={e => handleChange('numeroDocumento', e.target.value)} />
-                <AuthFormField label="Lengua Materna" type="text" id="lenguaMaterna" value={formData.lenguaMaterna || ''} onChange={e => handleChange('lenguaMaterna', e.target.value)} />
-                <AuthFormField label="Segunda Lengua (opcional)" type="text" id="segundaLengua" value={formData.segundaLengua || ''} onChange={e => handleChange('segundaLengua', e.target.value)} />
+      <AuthFormField
+        label="Apellido Materno"
+        id="aMaterno"
+        type="text"
+        value={formData.aMaterno || ''}
+        onChange={(e) => onFormDataChange('aMaterno', e.target.value)}
+        disabled={isLoading}
+      />
 
-                <h3>Domicilio Actual</h3>
-                <AuthFormField label="Dirección" type="text" id="direccion" value={formData.direccion || ''} onChange={e => handleChange('direccion', e.target.value)} />
-                <AuthFormField label="Código UBIGEO" type="text" id="ubigeoDireccion" value={formData.ubigeoDireccion || ''} onChange={e => handleChange('ubigeoDireccion', e.target.value)} />
-                <AuthFormField label="¿Tiene dispositivos electrónicos?" type="text" id="dispositivos" value={formData.dispositivos || ''} onChange={e => handleChange('dispositivos', e.target.value)} />
-                <AuthFormField label="¿Tiene acceso a Internet?" type="text" id="internet" value={formData.internet || ''} onChange={e => handleChange('internet', e.target.value)} />
+      <AuthFormField
+        label="Fecha de Nacimiento"
+        id="fechaNacimiento"
+        type="date"
+        value={formData.fechaNacimiento || ''}
+        onChange={(e) => onFormDataChange('fechaNacimiento', e.target.value)}
+        disabled={isLoading}
+      />
 
-                <h3>Servicio Educativo Solicitado</h3>
-                <AuthFormField label="Ingreso" type="text" id="ingreso" value={formData.ingreso || ''} onChange={e => handleChange('ingreso', e.target.value)} />
-                <AuthFormField label="Modalidad" type="text" id="modalidad" value={formData.modalidad || ''} onChange={e => handleChange('modalidad', e.target.value)} />
-                <AuthFormField label="Nivel" type="text" id="nivel" value={formData.nivel || ''} onChange={e => handleChange('nivel', e.target.value)} />
-                <AuthFormField label="Ciclo" type="text" id="ciclo" value={formData.ciclo || ''} onChange={e => handleChange('ciclo', e.target.value)} />
-                <AuthFormField label="Grado/Edad" type="text" id="gradoEdad" value={formData.gradoEdad || ''} onChange={e => handleChange('gradoEdad', e.target.value)} />
-            </div>
-            <AuthSubmitButton
-                isLoading={false}
-                loadingText="Guardando..."
-                defaultText="Enviar Matrícula"
-            />
-        </form>
-    );
+      <AuthFormField
+        label="Sexo"
+        id="sexo"
+        type="text"
+        value={formData.sexo || ''}
+        onChange={(e) => onFormDataChange('sexo', e.target.value)}
+        disabled={isLoading}
+      />
+
+      <AuthFormField
+        label="Número de Documento"
+        id="numeroDocumento"
+        type="text"
+        value={formData.numeroDocumento || ''}
+        onChange={(e) => onFormDataChange('numeroDocumento', e.target.value)}
+        disabled={isLoading}
+      />
+
+      <AuthFormField
+        label="Lugar de Nacimiento"
+        id="lugarNacimiento"
+        type="text"
+        value={formData.lugarNacimiento || ''}
+        onChange={(e) => onFormDataChange('lugarNacimiento', e.target.value)}
+        disabled={isLoading}
+      />
+
+      <AuthFormField
+        label="Lengua Materna"
+        id="lenguaMaterna"
+        type="text"
+        value={formData.lenguaMaterna || ''}
+        onChange={(e) => onFormDataChange('lenguaMaterna', e.target.value)}
+        disabled={isLoading}
+      />
+
+      <AuthFormField
+        label="Etnia"
+        id="etnia"
+        type="text"
+        value={formData.etnia || ''}
+        onChange={(e) => onFormDataChange('etnia', e.target.value)}
+        disabled={isLoading}
+      />
+
+      <AuthFormField
+        label="Discapacidad"
+        id="discapacidad"
+        type="text"
+        value={formData.discapacidad || ''}
+        onChange={(e) => onFormDataChange('discapacidad', e.target.value)}
+        disabled={isLoading}
+      />
+
+      <AuthFormField
+        label="Dirección Actual"
+        id="direccion"
+        type="text"
+        value={formData.direccion || ''}
+        onChange={(e) => onFormDataChange('direccion', e.target.value)}
+        disabled={isLoading}
+      />
+
+      <AuthFormField
+        label="¿Tiene Dispositivos Electrónicos? (si/no)"
+        id="dispositivos"
+        type="text"
+        value={formData.dispositivos || ''}
+        onChange={(e) => onFormDataChange('dispositivos', e.target.value)}
+        disabled={isLoading}
+      />
+
+      <AuthFormField
+        label="¿Tiene Internet? (si/no)"
+        id="internet"
+        type="text"
+        value={formData.internet || ''}
+        onChange={(e) => onFormDataChange('internet', e.target.value)}
+        disabled={isLoading}
+      />
+
+      <AuthFormField
+        label="DNI del Representante (si lo registra un docente)"
+        id="dniRepresentante"
+        type="text"
+        value={formData.dniRepresentante || ''}
+        onChange={(e) => onFormDataChange('dniRepresentante', e.target.value)}
+        disabled={isLoading}
+      />
+
+      <h3>Servicio Educativo Solicitado</h3>
+
+      {/* Tipo de Ingreso */}
+      <div className="form-group">
+        <label htmlFor="ingreso">Ingreso:</label>
+        <select
+          id="ingreso"
+          name="ingreso"
+          value={formData.ingreso || ''}
+          onChange={(e) => onFormDataChange('ingreso', e.target.value)}
+          disabled={isLoading}
+        >
+          <option value="">Seleccione Tipo Ingreso</option>
+          {TIPOINGRESO.map((s) => (
+            <option key={`Ingreso-${s}`} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Modalidad */}
+      <div className="form-group">
+        <label htmlFor="modalidad">Modalidad:</label>
+        <select
+          id="modalidad"
+          name="modalidad"
+          value={formData.modalidad || ''}
+          onChange={(e) => onFormDataChange('modalidad', e.target.value)}
+          disabled={isLoading}
+        >
+          <option value="">Seleccione Modalidad</option>
+          {MODALIDAD.map((s) => (
+            <option key={`Modalidad-${s}`} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Nivel */}
+      <AuthFormField
+        label="Nivel"
+        id="nivel"
+        type="text"
+        value={formData.nivel || ''}
+        onChange={(e) => onFormDataChange('nivel', e.target.value)}
+        disabled={isLoading}
+      />
+
+      {/* Grado/Edad */}
+      <AuthFormField
+        label="Grado o Edad"
+        id="gradoEdad"
+        type="text"
+        value={formData['gradoEdad'] || ''}
+        onChange={(e) => onFormDataChange('gradoEdad', e.target.value)}
+        disabled={isLoading}
+      />
+
+      {/* Checkbox: ¿Vive con el estudiante? */}
+      <div className="form-group form-check">
+        <input
+          type="checkbox"
+          className="form-check-input"
+          id="viveConEstudiante"
+          name="viveConEstudiante"
+          checked={!!formData.viveConEstudiante}
+          onChange={(e) => onFormDataChange('viveConEstudiante', e.target.checked)}
+          disabled={isLoading}
+        />
+        <label className="form-check-label" htmlFor="viveConEstudiante">
+          ¿Vive con el estudiante?
+        </label>
+      </div>
+
+      {/* Exoneración religión */}
+      <div className="form-group">
+        <label htmlFor="exoneracion">Solicitud de Exoneración de Educación Religiosa:</label>
+        <select
+          id="exoneracion"
+          name="exoneracion"
+          value={formData.exoneracion || ''}
+          onChange={(e) => onFormDataChange('exoneracion', e.target.value)}
+          disabled={isLoading}
+        >
+          <option value="">Seleccione opción</option>
+          {EXONERACION.map((s) => (
+            <option key={`Exoneracion-${s}`} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+      </div>
+
+    </div>
+  );
 }
 
-export default FormularioMatricula;
+MatriculaFormulario.propTypes = {
+  formData: PropTypes.object.isRequired,
+  onFormDataChange: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool
+};
+
+MatriculaFormulario.defaultProps = {
+  isLoading: false
+};
+
+export default MatriculaFormulario;

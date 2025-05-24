@@ -41,8 +41,15 @@
   color: #888;
 }
 
+
 .formulario-campos {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
 }

@@ -16,7 +16,7 @@ function Register() {
   const {
     email,
     setEmail,
-    password, 
+    password,
     setPassword,
     confirmPassword,
     setConfirmPassword,
@@ -28,7 +28,7 @@ function Register() {
     handleRoleSpecificDataChange,
     handleSubmit
   } = useRegisterForm();
-  
+
   const { session } = useAuth();
   const navigate = useNavigate();
   // Redirigir si ya hay sesión activa
@@ -72,7 +72,8 @@ function Register() {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
           disabled={isLoading}
-        />        <RoleSelect
+        />
+        <RoleSelect
           id="role"
           value={role}
           onChange={handleRoleChange}

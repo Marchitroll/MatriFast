@@ -1,20 +1,31 @@
+import { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../funcionalidad/AuthContext";
-import { useEffect } from 'react';
 import FormularioMatricula from '../componentes/FormularioMatricula';
+import AuthSubmitButton from '../componentes/AuthSubmitButton';
+import AuthPageLayout from '../componentes/AuthPageLayout';
+import { useMatriculaForm } from '../hooks/useMatriculaForm.js';
+
 
 function Formulario() {
   const { session, cerrarSesion } = useAuth();
   const navigate = useNavigate();
-  // Redirigir al login si no hay sesión
+
+  const {
+    formData,
+    isLoading,
+    error,
+    handleChange,
+    handleSubmit
+  } = useMatriculaForm();
+
+  // Redirigir si no hay sesión
   useEffect(() => {
     if (session === null) {
       navigate('/login');
     }
   }, [session, navigate]);
 
-  
-  // Función para cerrar sesión y redirigir
   const handleLogout = async () => {
     const resultado = await cerrarSesion();
     if (resultado.success) {
@@ -27,13 +38,25 @@ function Formulario() {
   return (
     <div className="page formulario">
       <h2>Formulario de Matrícula</h2>
-      {/* Botón para cerrar sesión */}
+
       <button onClick={handleLogout} disabled={!session} className="logout-button">
         Cerrar sesión
       </button>
 
-      {/* Solo mostrar el formulario si hay sesión activa */}
-      {session && <FormularioMatricula />}
+{session && (
+  <form className="matricula-form" onSubmit={handleSubmit}>
+    <FormularioMatricula
+      formData={formData}
+      onFormDataChange={handleChange}
+      isLoading={isLoading}
+    />
+    <AuthSubmitButton
+      isLoading={isLoading}
+      loadingText="Guardando..."
+      defaultText="Enviar Matrícula"
+    />
+  </form>
+)}
     </div>
   );
 }
