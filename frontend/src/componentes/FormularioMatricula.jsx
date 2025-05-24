@@ -18,7 +18,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('nombres', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="Apellido Paterno"
         id="aPaterno"
@@ -27,7 +27,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('aPaterno', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="Apellido Materno"
         id="aMaterno"
@@ -36,7 +36,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('aMaterno', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="Fecha de Nacimiento"
         id="fechaNacimiento"
@@ -45,7 +45,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('fechaNacimiento', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="Sexo"
         id="sexo"
@@ -54,7 +54,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('sexo', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="Número de Documento"
         id="numeroDocumento"
@@ -63,7 +63,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('numeroDocumento', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="Lugar de Nacimiento"
         id="lugarNacimiento"
@@ -72,7 +72,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('lugarNacimiento', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="Lengua Materna"
         id="lenguaMaterna"
@@ -81,7 +81,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('lenguaMaterna', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="Etnia"
         id="etnia"
@@ -90,7 +90,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('etnia', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="Discapacidad"
         id="discapacidad"
@@ -99,7 +99,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('discapacidad', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="Dirección Actual"
         id="direccion"
@@ -108,7 +108,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('direccion', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="¿Tiene Dispositivos Electrónicos? (si/no)"
         id="dispositivos"
@@ -117,7 +117,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('dispositivos', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="¿Tiene Internet? (si/no)"
         id="internet"
@@ -126,7 +126,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('internet', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       <AuthFormField
         label="DNI del Representante (si lo registra un docente)"
         id="dniRepresentante"
@@ -135,7 +135,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('dniRepresentante', e.target.value)}
         disabled={isLoading}
       />
-
+      
       <h3>Servicio Educativo Solicitado</h3>
 
       {/* Tipo de Ingreso */}
@@ -185,7 +185,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('nivel', e.target.value)}
         disabled={isLoading}
       />
-
+      <div></div>
       {/* Grado/Edad */}
       <AuthFormField
         label="Grado o Edad"

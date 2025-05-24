@@ -22,6 +22,15 @@ class UsuarioValidator extends IUsuarioValidator {
         'tipoRelacion', 'numeroCelular', // RepresentanteLegal específico
         'departamento', 'provincia', 'distrito', 'direccion', // Ubicacion
         'lenguaPrincipal' // Lenguas
+      ],
+      'ESTUDIANTE': [
+        'nombres', 'aPaterno', 'fechaNacimiento', 'sexo',  // Persona
+        'tipoDocumento', 'numeroDocumento',               // Documento
+        'lugarNacimientoDepartamento', 'lugarNacimientoProvincia', 'lugarNacimientoDistrito', 'lugarNacimientoDireccion', // Lugar nacimiento (Ubicacion)
+        'domicilioActualDepartamento', 'domicilioActualProvincia', 'domicilioActualDistrito', 'domicilioActualDireccion',   // Domicilio actual (Ubicacion)
+        'lenguaPrincipal',        // Lenguas
+        'tieneDispositivosElectronicos', 'tieneInternet'  // Datos adicionales
+        // 'etnia' y 'discapacidad' pueden ser opcionales
       ]
     };
   }
@@ -50,6 +59,15 @@ class UsuarioValidator extends IUsuarioValidator {
         };
       }
     }
+
+    if (role === 'ESTUDIANTE' && typeof formData.representanteLegal !== 'object') {
+      logger.error('Datos del representante legal no proporcionados o inválidos');
+      return {
+        esValido: false,
+        mensaje: 'Por favor, complete los datos del representante legal del estudiante.'
+      };
+    }
+
     
     return { esValido: true, mensaje: null };
   }

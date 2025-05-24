@@ -154,6 +154,156 @@ class UsuarioPersistence extends IUsuarioPersistence {
       error: 'Persistencia de representante legal no implementada todavía' 
     };
   }
+
+  /**
+ * Persiste los datos del estudiante junto con objetos relacionados
+ * @param {object} estudiante - Objeto estudiante a persistir
+ * @param {object} objetos - Objetos adicionales relacionados (lugarNacimiento, domicilioActual, lengua, discapacidad, representanteLegalInscriptor)
+ * @returns {Promise<object>} Resultado de la operación
+ */
+async persistirEstudiante(estudiante, objetos = {}) {
+  try {
+    const {
+      lugarNacimiento,
+      domicilioActual,
+      lengua,
+      discapacidad,
+      representanteLegalInscriptor
+    } = objetos;
+
+    // Validar que los objetos relacionados tengan un id (suponiendo que ya están persistidos)
+    if (!lugarNacimiento || !lugarNacimiento.id) {
+      return { success: false, error: 'Lugar de nacimiento inválido o no persistido' };
+    }
+    if (!domicilioActual || !domicilioActual.id) {
+      return { success: false, error: 'Domicilio actual inválido o no persistido' };
+    }
+    if (!lengua || !lengua.id) {
+      return { success: false, error: 'Lengua inválida o no persistida' };
+    }
+    // Discapacidad puede ser nulo, entonces no es obligatorio
+    // Representante legal también obligatorio en este caso
+    if (!representanteLegalInscriptor || !representanteLegalInscriptor.id) {
+      return { success: false, error: 'Representante legal inválido o no persistido' };
+    }
+
+    // 1. Obtener idSexo consultando tabla Sexo
+    const { data: sexoData, error: sexoError } = await this.supabase
+      .from('Sexo')
+      .select('id')
+      .eq('valor', estudiante.sexo)
+      .single();
+
+    if (sexoError) {
+      return { success: false, error: `Error al obtener idSexo: ${sexoError.message}` };
+    }
+    if (!sexoData || !sexoData.id) {
+      return { success: false, error: `No se encontró el sexo con valor: ${estudiante.sexo}` };
+    }
+    const idSexo = sexoData.id;
+
+    // 2. Obtener idTipoDocumento consultando tabla TipoDocumento
+    const { data: tipoDocData, error: tipoDocError } = await this.supabase
+      .from('TipoDocumento')
+      .select('id')
+      .eq('valor', estudiante.documento.tipo)
+      .single();
+
+    if (tipoDocError) {
+      return { success: false, error: `Error al obtener idTipoDocumento: ${tipoDocError.message}` };
+    }
+    if (!tipoDocData || !tipoDocData.id) {
+      return { success: false, error: `No se encontró el tipo de documento con valor: ${estudiante.documento.tipo}` };
+    }
+    const idTipoDocumento = tipoDocData.id;
+
+    // 3. Insertar en tabla Persona
+    const personaData = {
+      nombres: estudiante.nombres,
+      aPaterno: estudiante.aPaterno,
+      aMaterno: estudiante.aMaterno || null,
+      idSexo: idSexo,
+      fechaNacimiento: new Date(estudiante.fechaNacimiento).toISOString().split('T')[0],
+      idDocumento: idTipoDocumento,
+      nroDocumento: estudiante.documento.numero
+    };
+
+    const { data: personaInserted, error: personaError } = await this.supabase
+      .from('Persona')
+      .insert(personaData)
+      .select()
+      .single();
+
+    if (personaError) {
+      return { success: false, error: `Error al crear persona: ${personaError.message}` };
+    }
+    const idPersona = personaInserted.id;
+
+    // 4. Obtener idRol para "ESTUDIANTE"
+    const { data: rolData, error: rolError } = await this.supabase
+      .from('Rol')
+      .select('id')
+      .eq('valor', 'ESTUDIANTE')
+      .single();
+
+    if (rolError) {
+      return { success: false, error: `Error al obtener rol: ${rolError.message}` };
+    }
+    if (!rolData || !rolData.id) {
+      return { success: false, error: `No se encontró el rol ESTUDIANTE` };
+    }
+    const idRol = rolData.id;
+
+    // 5. Insertar en tabla Usuario
+    const usuarioData = {
+      idPersona: idPersona,
+      email: estudiante.email || null, // Si tienes email
+      idRol: idRol
+    };
+
+    const { data: usuarioInserted, error: usuarioError } = await this.supabase
+      .from('Usuario')
+      .insert(usuarioData)
+      .select()
+      .single();
+
+    if (usuarioError) {
+      return { success: false, error: `Error al crear usuario: ${usuarioError.message}` };
+    }
+    const idUsuario = usuarioInserted.id;
+
+    // 6. Insertar en tabla Estudiante con referencias a objetos relacionados
+    const estudianteData = {
+      idUsuario: idUsuario,
+      idLugarNacimiento: lugarNacimiento.id,
+      idDomicilioActual: domicilioActual.id,
+      idLengua: lengua.id,
+      etnia: estudiante.etnia || null,
+      idDiscapacidad: discapacidad?.id || null,
+      tieneDispositivosElectronicos: estudiante.tieneDispositivosElectronicos,
+      tieneInternet: estudiante.tieneInternet,
+      idRepresentanteLegalInscriptor: representanteLegalInscriptor.id
+    };
+
+    const { error: estudianteError } = await this.supabase
+      .from('Estudiante')
+      .insert(estudianteData);
+
+    if (estudianteError) {
+      return { success: false, error: `Error al crear estudiante: ${estudianteError.message}` };
+    }
+
+    return {
+      success: true,
+      message: 'Estudiante registrado exitosamente',
+      data: { idPersona, idUsuario }
+    };
+
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 }
 
 export default UsuarioPersistence;

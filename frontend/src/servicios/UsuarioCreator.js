@@ -9,6 +9,8 @@ import Ubicacion from '../modelos/Ubicacion';
 import Lenguas from '../modelos/Lenguas';
 import TIPOS_LENGUAS from '../modelos/enums/TiposLenguas';
 import logger from './Logger';
+import EstudianteFactory from '../modelos/Fabricas/EstudianteFactory';
+
 
 class UsuarioCreator extends IUsuarioCreator {
   /**
@@ -20,6 +22,8 @@ class UsuarioCreator extends IUsuarioCreator {
     super();
     this.docenteFactory = docenteFactory || new DocenteFactory();
     this.representanteLegalFactory = representanteLegalFactory || new RepresentanteLegalFactory();
+      this.estudianteFactory = estudianteFactory || new EstudianteFactory();
+
   }
 
   /**
@@ -132,6 +136,66 @@ class UsuarioCreator extends IUsuarioCreator {
     }
   }
 
+  async #crearObjetoEstudiante(datosUsuario, datosEstudiante) {
+  const { documento, error: docError } = this.#crearDocumento(datosEstudiante);
+  if (docError) return { success: false, error: `Error al crear documento: ${docError}` };
+
+  const { ubicacion: lugarNacimiento, error: nacimientoError } = this.#crearUbicacion({
+    direccion: datosEstudiante.lugarNacimientoDireccion,
+    departamento: datosEstudiante.lugarNacimientoDepartamento,
+    provincia: datosEstudiante.lugarNacimientoProvincia,
+    distrito: datosEstudiante.lugarNacimientoDistrito
+  });
+  if (nacimientoError) return { success: false, error: `Error en lugar de nacimiento: ${nacimientoError}` };
+
+  const { ubicacion: domicilioActual, error: domicilioError } = this.#crearUbicacion(datosEstudiante);
+  if (domicilioError) return { success: false, error: `Error en domicilio actual: ${domicilioError}` };
+
+  const { perfilLinguistico, error: lenguaError } = this.#crearPerfilLinguistico(datosEstudiante);
+  if (lenguaError) return { success: false, error: `Error en perfil lingüístico: ${lenguaError}` };
+
+  // Crear representante legal
+  const rlResult = await this.#crearObjetoRepresentanteLegal(datosUsuario, datosEstudiante.representanteLegalInscriptor);
+  if (!rlResult.success) return { success: false, error: `Error en representante legal: ${rlResult.error}` };
+  const representanteLegal = rlResult.data.representanteLegal;
+
+  try {
+    const estudiante = this.estudianteFactory.crearUsuario(
+      'id-pendiente',
+      datosEstudiante.nombres,
+      datosEstudiante.aPaterno,
+      datosEstudiante.aMaterno || null,
+      datosEstudiante.fechaNacimiento,
+      datosEstudiante.sexo,
+      documento,
+      lugarNacimiento,
+      perfilLinguistico,
+      datosEstudiante.etnia || null,
+      datosEstudiante.discapacidad || null,
+      domicilioActual,
+      !!datosEstudiante.tieneDispositivosElectronicos,
+      !!datosEstudiante.tieneInternet,
+      representanteLegal
+    );
+
+    return {
+      success: true,
+      data: {
+        estudiante,
+        documento,
+        lugarNacimiento,
+        domicilioActual,
+        perfilLinguistico,
+        representanteLegal
+      }
+    };
+  } catch (error) {
+    logger.error('Error al crear estudiante', error);
+    return { success: false, error: error.message };
+  }
+}
+
+
   /**
    * Crea un objeto RepresentanteLegal
    * @param {object} datosUsuario - Datos comunes del usuario
@@ -221,7 +285,11 @@ class UsuarioCreator extends IUsuarioCreator {
       return this.#crearObjetoDocente(datosUsuario, datosEspecificos);
     } else if (role === 'REPRESENTANTE LEGAL') {
       return this.#crearObjetoRepresentanteLegal(datosUsuario, datosEspecificos);
-    } else {
+    } 
+      else if (role === 'ESTUDIANTE') {
+      return this.#crearObjetoEstudiante(datosUsuario, datosEspecificos);
+    }
+      else {
       logger.error(`Rol no soportado: ${role}`);
       return { success: false, error: `Rol "${role}" no reconocido.` };
     }

@@ -88,7 +88,34 @@ class UsuarioService {
           idUsuario: persistenciaResult.data.idUsuario
         }
       };
-    } else if (role === 'REPRESENTANTE LEGAL') {
+    } 
+
+    else if (role === 'ESTUDIANTE') {
+    logger.info('Iniciando persistencia de estudiante');
+    const persistenciaResult = await this.persistence.persistirEstudiante(resultado.data.estudiante, {
+      lugarNacimiento: resultado.data.lugarNacimiento,
+      domicilioActual: resultado.data.domicilioActual,
+      lengua: resultado.data.lengua,
+      representanteLegalInscriptor: resultado.data.representanteLegal
+    });
+    if (!persistenciaResult.success) {
+      logger.error('Error al persistir estudiante', persistenciaResult.error);
+      return {
+        success: false,
+        error: `Error al guardar en base de datos: ${persistenciaResult.error}`,
+        data: resultado.data
+      };
+    }
+    return {
+      success: true,
+      data: {
+        ...resultado.data,
+        idPersona: persistenciaResult.data.idPersona,
+        idUsuario: persistenciaResult.data.idUsuario
+      }
+    };      
+    }
+      else if (role === 'REPRESENTANTE LEGAL') {
       // Implementar cuando se necesite
       return {
         success: false,
