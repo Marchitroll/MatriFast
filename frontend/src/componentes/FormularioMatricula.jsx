@@ -3,6 +3,9 @@ import AuthFormField from './AuthFormField';
 import TIPOINGRESO from '../modelos/enums/TiposIngreso';
 import MODALIDAD from '../modelos/enums/Modalidad';
 import EXONERACION from '../modelos/enums/TiposDiscapacidad'; // O crea otro enum específico si no aplica este
+import SEXOS from '../modelos/enums/Sexos';
+import listaDeTiposDocumentoPermitidos from '../modelos/enums/TiposDocumento';
+import TIPOS_LENGUAS from '../modelos/enums/TiposLenguas';
 
 function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
   return (
@@ -46,14 +49,45 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         disabled={isLoading}
       />
       <div></div>
-      <AuthFormField
-        label="Sexo"
-        id="sexo"
-        type="text"
-        value={formData.sexo || ''}
-        onChange={(e) => onFormDataChange('sexo', e.target.value)}
-        disabled={isLoading}
-      />
+
+      <div className="form-group">
+        <label htmlFor="sexoRL">Sexo:</label>
+        <select
+          id="sexoRL"
+          name="sexo"
+          value={formData.sexo || ''}
+          onChange={(e) => onFormDataChange('sexo', e.target.value)}
+          required
+          disabled={isLoading}
+        >
+          <option value="">Seleccione sexo</option>
+          {SEXOS.map((s) => (
+            <option key={`sexo-rl-${s}`} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div></div>
+      <div className="form-group">
+        <label htmlFor="tipoDocumentoRL">Tipo de Documento:</label>
+        <select
+          id="tipoDocumentoRL"
+          name="tipoDocumento"
+          value={formData.tipoDocumento || ''}
+          onChange={(e) => onFormDataChange('tipoDocumento', e.target.value)}
+          required
+          disabled={isLoading}
+        >
+          <option value="">Seleccione tipo de documento</option>
+          {listaDeTiposDocumentoPermitidos.map((tipo) => (
+            <option key={`doc-rl-${tipo}`} value={tipo}>
+              {tipo}
+            </option>
+          ))}
+        </select>
+      </div>
       <div></div>
       <AuthFormField
         label="Número de Documento"
@@ -72,60 +106,138 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('lugarNacimiento', e.target.value)}
         disabled={isLoading}
       />
+
       <div></div>
+      {/* Campos para Dirección (Ubicacion) */}
       <AuthFormField
-        label="Lengua Materna"
-        id="lenguaMaterna"
+        label="Código UBIGEO (Opcional):"
         type="text"
-        value={formData.lenguaMaterna || ''}
-        onChange={(e) => onFormDataChange('lenguaMaterna', e.target.value)}
+        id="codUbigeoRL"
+        name="codUbigeo"
+        value={formData.codUbigeo || ''}
+        onChange={(e) => onFormDataChange('codUbigeo', e.target.value)}
+        disabled={isLoading}
+        pattern="^\d{6}$"
+        title="Debe ser un código UBIGEO de 6 dígitos (opcional)."
+      />
+      <AuthFormField
+        label="Departamento (Dirección):"
+        type="text"
+        id="departamentoDireccionRL"
+        name="departamento" // Coincide con Ubicacion.js
+        value={formData.departamento || ''}
+        onChange={(e) => onFormDataChange('departamento', e.target.value)}
+        required // Obligatorio según Ubicacion.js
+        disabled={isLoading}
+      />
+      <AuthFormField
+        label="Provincia (Dirección):"
+        type="text"
+        id="provinciaDireccionRL"
+        name="provincia" // Coincide con Ubicacion.js
+        value={formData.provincia || ''}
+        onChange={(e) => onFormDataChange('provincia', e.target.value)}
+        required // Obligatorio según Ubicacion.js
         disabled={isLoading}
       />
       <div></div>
       <AuthFormField
-        label="Etnia"
-        id="etnia"
+        label="Distrito (Dirección):"
         type="text"
+        id="distritoDireccionRL"
+        name="distrito" // Coincide con Ubicacion.js
+        value={formData.distrito || ''}
+        onChange={(e) => onFormDataChange('distrito', e.target.value)}
+        required // Obligatorio según Ubicacion.js
+        disabled={isLoading}
+      />
+      <AuthFormField
+        label="Dirección Específica:"
+        type="text"
+        id="direccionRL"
+        name="direccion" // Coincide con Ubicacion.js
+        value={formData.direccion || ''}
+        onChange={(e) => onFormDataChange('direccion', e.target.value)}
+        required // Obligatorio según Ubicacion.js
+        disabled={isLoading}
+      />
+
+      {/* Campos para Perfil Lingüístico (Lenguas) - Simplificado */}
+      <div className="form-group">
+        <label htmlFor="lenguaPrincipalRL">Lengua Principal:</label>
+        <select
+          id="lenguaPrincipalRL"
+          name="lenguaPrincipal"
+          value={formData.lenguaPrincipal || ''}
+          onChange={(e) => onFormDataChange('lenguaPrincipal', e.target.value)}
+          required
+          disabled={isLoading}
+        >
+          <option value="">Seleccione lengua principal</option>
+          {Object.entries(TIPOS_LENGUAS).map(([key, value]) => (
+            <option key={`lp-rl-${key}`} value={key}>
+              {value}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label htmlFor="lenguaSecundariaRL">Lengua Secundaria (Opcional):</label>
+        <select
+          id="lenguaSecundariaRL"
+          name="lenguaSecundaria"
+          value={formData.lenguaSecundaria || ''}
+          onChange={(e) => onFormDataChange('lenguaSecundaria', e.target.value)}
+          disabled={isLoading}
+        >
+          <option value="">Seleccione lengua secundaria (si aplica)</option>
+          {Object.entries(TIPOS_LENGUAS).map(([key, value]) => (
+            <option key={`ls-rl-${key}`} value={key}>
+              {value}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <AuthFormField
+        label="Etnia (Opcional):"
+        type="text"
+        id="etniaRL"
+        name="etnia"
         value={formData.etnia || ''}
         onChange={(e) => onFormDataChange('etnia', e.target.value)}
         disabled={isLoading}
       />
       <div></div>
-      <AuthFormField
-        label="Discapacidad"
-        id="discapacidad"
-        type="text"
-        value={formData.discapacidad || ''}
-        onChange={(e) => onFormDataChange('discapacidad', e.target.value)}
-        disabled={isLoading}
-      />
+      <div className="form-group form-check">
+        <input
+          type="checkbox"
+          className="form-check-input"
+          id="dispositivosElectronicos"
+          name="dispositivosElectronicos"
+          checked={!!formData.dispositivosElectronicos}
+          onChange={(e) => onFormDataChange('dispositivosElectronicos', e.target.checked)}
+          disabled={isLoading}
+        />
+        <label className="form-check-label" htmlFor="dispositivosElectronicos">
+          ¿Tiene Dispositivos Electrónico?
+        </label>
+      </div>
       <div></div>
-      <AuthFormField
-        label="Dirección Actual"
-        id="direccion"
-        type="text"
-        value={formData.direccion || ''}
-        onChange={(e) => onFormDataChange('direccion', e.target.value)}
-        disabled={isLoading}
-      />
-      <div></div>
-      <AuthFormField
-        label="¿Tiene Dispositivos Electrónicos? (si/no)"
-        id="dispositivos"
-        type="text"
-        value={formData.dispositivos || ''}
-        onChange={(e) => onFormDataChange('dispositivos', e.target.value)}
-        disabled={isLoading}
-      />
-      <div></div>
-      <AuthFormField
-        label="¿Tiene Internet? (si/no)"
-        id="internet"
-        type="text"
-        value={formData.internet || ''}
-        onChange={(e) => onFormDataChange('internet', e.target.value)}
-        disabled={isLoading}
-      />
+            <div className="form-group form-check">
+        <input
+          type="checkbox"
+          className="form-check-input"
+          id="tieneInternet"
+          name="tieneInternet"
+          checked={!!formData.tieneInternet}
+          onChange={(e) => onFormDataChange('tieneInternet', e.target.checked)}
+          disabled={isLoading}
+        />
+        <label className="form-check-label" htmlFor="tieneInternet">
+          ¿Tiene Internet?
+        </label>
+      </div>
       <div></div>
       <AuthFormField
         label="DNI del Representante (si lo registra un docente)"
@@ -135,7 +247,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         onChange={(e) => onFormDataChange('dniRepresentante', e.target.value)}
         disabled={isLoading}
       />
-      
+
       <h3>Servicio Educativo Solicitado</h3>
 
       {/* Tipo de Ingreso */}
@@ -196,25 +308,25 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         disabled={isLoading}
       />
 
-      {/* Checkbox: ¿Vive con el estudiante? */}
+      {/* Checkbox: ¿Vive con el Exoneracion Religiosa? */}
       <div className="form-group form-check">
         <input
           type="checkbox"
           className="form-check-input"
-          id="viveConEstudiante"
-          name="viveConEstudiante"
-          checked={!!formData.viveConEstudiante}
-          onChange={(e) => onFormDataChange('viveConEstudiante', e.target.checked)}
+          id="exoneracionReligiosa"
+          name="exoneracionReligiosa"
+          checked={!!formData.exoneracionReligiosa}
+          onChange={(e) => onFormDataChange('exoneracionReligiosa', e.target.checked)}
           disabled={isLoading}
         />
-        <label className="form-check-label" htmlFor="viveConEstudiante">
-          ¿Vive con el estudiante?
+        <label className="form-check-label" htmlFor="exoneracionReligiosa">
+          ¿Solicitud de Exoneración de Educación Religiosa?
         </label>
       </div>
 
-      {/* Exoneración religión */}
+      {/* Exoneración fisica */}
       <div className="form-group">
-        <label htmlFor="exoneracion">Solicitud de Exoneración de Educación Religiosa:</label>
+        <label htmlFor="exoneracion">Solicitud de Exoneración de Educación Fisica:</label>
         <select
           id="exoneracion"
           name="exoneracion"
@@ -224,7 +336,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         >
           <option value="">Seleccione opción</option>
           {EXONERACION.map((s) => (
-            <option key={`Exoneracion-${s}`} value={s}>
+            <option key={`exoneracion-${s}`} value={s}>
               {s}
             </option>
           ))}

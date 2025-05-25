@@ -1,10 +1,10 @@
-import Persona from './Persona';
+import Usuario from './Usuario';
 import Ubicacion from './Ubicacion';
 import Lenguas from './Lenguas';
 import Discapacidad from './Discapacidad';
 import RepresentanteLegal from './RepresentanteLegal';
 
-class Estudiante extends Persona {
+class Estudiante extends Usuario {
     #lugarNacimiento;
     #lengua;
     #etnia;

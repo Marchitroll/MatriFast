@@ -1,9 +1,10 @@
 import Estudiante from '../Estudiante';
+import UsuarioFactory from '../Interfaces/UsuarioFactory';
 
 /**
  * Fábrica para crear objetos de tipo Estudiante
  */
-class EstudianteFactory {
+class EstudianteFactory extends UsuarioFactory {
   /**
    * Crea un nuevo objeto Estudiante
    * 

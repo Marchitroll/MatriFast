@@ -18,11 +18,11 @@ class UsuarioCreator extends IUsuarioCreator {
    * @param {DocenteFactory} docenteFactory - Fabrica de docentes 
    * @param {RepresentanteLegalFactory} representanteLegalFactory - Fabrica de representantes
    */
-  constructor(docenteFactory = null, representanteLegalFactory = null) {
+  constructor(docenteFactory = null, representanteLegalFactory = null, estudianteFactory = null) {
     super();
     this.docenteFactory = docenteFactory || new DocenteFactory();
     this.representanteLegalFactory = representanteLegalFactory || new RepresentanteLegalFactory();
-      this.estudianteFactory = estudianteFactory || new EstudianteFactory();
+    this.estudianteFactory = estudianteFactory || new EstudianteFactory();
 
   }
 
@@ -106,13 +106,13 @@ class UsuarioCreator extends IUsuarioCreator {
     if (docError) {
       return { success: false, error: `Error al crear el documento: ${docError}` };
     }
-    
+
     try {
       const { email, role } = datosUsuario;
       const { nombres, aPaterno, aMaterno, fechaNacimiento, sexo } = datosDocente;
-      
+
       const userId = 'id-pendiente'; // Este ID se establecerá después
-      
+
       // La fábrica se encarga de la creación del objeto Docente
       const nuevoDocente = this.docenteFactory.crearUsuario(
         userId,
@@ -125,10 +125,10 @@ class UsuarioCreator extends IUsuarioCreator {
         email,
         role
       );
-      
-      return { 
-        success: true, 
-        data: { docente: nuevoDocente, documento } 
+
+      return {
+        success: true,
+        data: { docente: nuevoDocente, documento }
       };
     } catch (error) {
       logger.error('Error al crear docente', error);
@@ -137,63 +137,63 @@ class UsuarioCreator extends IUsuarioCreator {
   }
 
   async #crearObjetoEstudiante(datosUsuario, datosEstudiante) {
-  const { documento, error: docError } = this.#crearDocumento(datosEstudiante);
-  if (docError) return { success: false, error: `Error al crear documento: ${docError}` };
+    const { documento, error: docError } = this.#crearDocumento(datosEstudiante);
+    if (docError) return { success: false, error: `Error al crear documento: ${docError}` };
 
-  const { ubicacion: lugarNacimiento, error: nacimientoError } = this.#crearUbicacion({
-    direccion: datosEstudiante.lugarNacimientoDireccion,
-    departamento: datosEstudiante.lugarNacimientoDepartamento,
-    provincia: datosEstudiante.lugarNacimientoProvincia,
-    distrito: datosEstudiante.lugarNacimientoDistrito
-  });
-  if (nacimientoError) return { success: false, error: `Error en lugar de nacimiento: ${nacimientoError}` };
+    const { ubicacion: lugarNacimiento, error: nacimientoError } = this.#crearUbicacion({
+      direccion: datosEstudiante.lugarNacimientoDireccion,
+      departamento: datosEstudiante.lugarNacimientoDepartamento,
+      provincia: datosEstudiante.lugarNacimientoProvincia,
+      distrito: datosEstudiante.lugarNacimientoDistrito
+    });
+    if (nacimientoError) return { success: false, error: `Error en lugar de nacimiento: ${nacimientoError}` };
 
-  const { ubicacion: domicilioActual, error: domicilioError } = this.#crearUbicacion(datosEstudiante);
-  if (domicilioError) return { success: false, error: `Error en domicilio actual: ${domicilioError}` };
+    const { ubicacion: domicilioActual, error: domicilioError } = this.#crearUbicacion(datosEstudiante);
+    if (domicilioError) return { success: false, error: `Error en domicilio actual: ${domicilioError}` };
 
-  const { perfilLinguistico, error: lenguaError } = this.#crearPerfilLinguistico(datosEstudiante);
-  if (lenguaError) return { success: false, error: `Error en perfil lingüístico: ${lenguaError}` };
+    const { perfilLinguistico, error: lenguaError } = this.#crearPerfilLinguistico(datosEstudiante);
+    if (lenguaError) return { success: false, error: `Error en perfil lingüístico: ${lenguaError}` };
 
-  // Crear representante legal
-  const rlResult = await this.#crearObjetoRepresentanteLegal(datosUsuario, datosEstudiante.representanteLegalInscriptor);
-  if (!rlResult.success) return { success: false, error: `Error en representante legal: ${rlResult.error}` };
-  const representanteLegal = rlResult.data.representanteLegal;
+    // Crear representante legal
+    const rlResult = await this.#crearObjetoRepresentanteLegal(datosUsuario, datosEstudiante.representanteLegalInscriptor);
+    if (!rlResult.success) return { success: false, error: `Error en representante legal: ${rlResult.error}` };
+    const representanteLegal = rlResult.data.representanteLegal;
 
-  try {
-    const estudiante = this.estudianteFactory.crearUsuario(
-      'id-pendiente',
-      datosEstudiante.nombres,
-      datosEstudiante.aPaterno,
-      datosEstudiante.aMaterno || null,
-      datosEstudiante.fechaNacimiento,
-      datosEstudiante.sexo,
-      documento,
-      lugarNacimiento,
-      perfilLinguistico,
-      datosEstudiante.etnia || null,
-      datosEstudiante.discapacidad || null,
-      domicilioActual,
-      !!datosEstudiante.tieneDispositivosElectronicos,
-      !!datosEstudiante.tieneInternet,
-      representanteLegal
-    );
-
-    return {
-      success: true,
-      data: {
-        estudiante,
+    try {
+      const estudiante = this.estudianteFactory.crearUsuario(
+        'id-pendiente',
+        datosEstudiante.nombres,
+        datosEstudiante.aPaterno,
+        datosEstudiante.aMaterno || null,
+        datosEstudiante.fechaNacimiento,
+        datosEstudiante.sexo,
         documento,
         lugarNacimiento,
-        domicilioActual,
         perfilLinguistico,
+        datosEstudiante.etnia || null,
+        datosEstudiante.discapacidad || null,
+        domicilioActual,
+        !!datosEstudiante.tieneDispositivosElectronicos,
+        !!datosEstudiante.tieneInternet,
         representanteLegal
-      }
-    };
-  } catch (error) {
-    logger.error('Error al crear estudiante', error);
-    return { success: false, error: error.message };
+      );
+
+      return {
+        success: true,
+        data: {
+          estudiante,
+          documento,
+          lugarNacimiento,
+          domicilioActual,
+          perfilLinguistico,
+          representanteLegal
+        }
+      };
+    } catch (error) {
+      logger.error('Error al crear estudiante', error);
+      return { success: false, error: error.message };
+    }
   }
-}
 
 
   /**
@@ -209,35 +209,35 @@ class UsuarioCreator extends IUsuarioCreator {
     if (docError) {
       return { success: false, error: `Error al crear el documento: ${docError}` };
     }
-    
+
     // Crear ubicación
     const { ubicacion, error: ubicacionError } = this.#crearUbicacion(datosRL);
     if (ubicacionError) {
       return { success: false, error: `Error al crear la ubicación: ${ubicacionError}` };
     }
-    
+
     // Crear perfil lingüístico
     const { perfilLinguistico, error: lenguasError } = this.#crearPerfilLinguistico(datosRL);
     if (lenguasError) {
       return { success: false, error: `Error al crear el perfil lingüístico: ${lenguasError}` };
     }
-    
+
     try {
       const { email, role } = datosUsuario;
-      const { 
-        nombres, 
-        aPaterno, 
-        aMaterno, 
-        fechaNacimiento, 
-        sexo, 
+      const {
+        nombres,
+        aPaterno,
+        aMaterno,
+        fechaNacimiento,
+        sexo,
         tipoRelacion,
         numeroCelular,
         etnia,
         viveConEstudiante
       } = datosRL;
-      
+
       const userId = 'id-pendiente'; // Este ID se establecerá después
-      
+
       // La fábrica se encarga de la creación del objeto RepresentanteLegal
       const nuevoRL = this.representanteLegalFactory.crearUsuario(
         userId,
@@ -256,14 +256,14 @@ class UsuarioCreator extends IUsuarioCreator {
         numeroCelular,
         !!viveConEstudiante
       );
-      
-      return { 
-        success: true, 
-        data: { 
-          representanteLegal: nuevoRL, 
-          documento, 
-          ubicacion, 
-          perfilLinguistico 
+
+      return {
+        success: true,
+        data: {
+          representanteLegal: nuevoRL,
+          documento,
+          ubicacion,
+          perfilLinguistico
         }
       };
     } catch (error) {
@@ -280,16 +280,16 @@ class UsuarioCreator extends IUsuarioCreator {
    */
   async crearUsuario(datosUsuario, datosEspecificos) {
     const { role } = datosUsuario;
-    
+
     if (role === 'DOCENTE') {
       return this.#crearObjetoDocente(datosUsuario, datosEspecificos);
     } else if (role === 'REPRESENTANTE LEGAL') {
       return this.#crearObjetoRepresentanteLegal(datosUsuario, datosEspecificos);
-    } 
-      else if (role === 'ESTUDIANTE') {
+    }
+    else if (role === 'ESTUDIANTE') {
       return this.#crearObjetoEstudiante(datosUsuario, datosEspecificos);
     }
-      else {
+    else {
       logger.error(`Rol no soportado: ${role}`);
       return { success: false, error: `Rol "${role}" no reconocido.` };
     }
