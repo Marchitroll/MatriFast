@@ -13,17 +13,13 @@ class EstudianteFactory extends UsuarioFactory {
    * @param {string} aPaterno
    * @param {string|null} aMaterno
    * @param {string} fechaNacimiento - en formato ISO (yyyy-mm-dd)
-   * @param {string} sexo
-   * @param {Documento} documento
+   * @param {string} sexo   * @param {Documento} documento
    * @param {Ubicacion} lugarNacimiento
-   * @param {Lenguas} lengua
-   * @param {string|null} etnia
-   * @param {Discapacidad|null} discapacidad
+   * @param {boolean} tieneDiscapacidad
    * @param {Ubicacion} domicilioActual
    * @param {boolean} tieneDispositivosElectronicos
    * @param {boolean} tieneInternet
-   * @param {RepresentanteLegal} representanteLegalInscriptor
-   * 
+   * @param {RepresentanteLegal|null} representanteLegalInscriptor - Representante legal que inscribe, si aplica.
    * @returns {Estudiante}
    */
   crearUsuario(
@@ -35,26 +31,20 @@ class EstudianteFactory extends UsuarioFactory {
     sexo,
     documento,
     lugarNacimiento,
-    lengua,
-    etnia,
-    discapacidad,
+    tieneDiscapacidad,
     domicilioActual,
     tieneDispositivosElectronicos,
     tieneInternet,
     representanteLegalInscriptor
-  ) {
-    return new Estudiante(
+  ) {    return new Estudiante(
       id,
       nombres,
       aPaterno,
       aMaterno,
-      fechaNacimiento,
-      sexo,
+      fechaNacimiento,      sexo,
       documento,
       lugarNacimiento,
-      lengua,
-      etnia,
-      discapacidad,
+      tieneDiscapacidad,
       domicilioActual,
       tieneDispositivosElectronicos,
       tieneInternet,

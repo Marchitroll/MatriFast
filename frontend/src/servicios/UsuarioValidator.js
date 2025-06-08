@@ -19,18 +19,15 @@ class UsuarioValidator extends IUsuarioValidator {
       'REPRESENTANTE LEGAL': [
         'nombres', 'aPaterno', 'fechaNacimiento', 'sexo', // Persona
         'tipoDocumento', 'numeroDocumento', // Documento
-        'tipoRelacion', 'numeroCelular', // RepresentanteLegal específico
-        'departamento', 'provincia', 'distrito', 'direccion', // Ubicacion
-        'lenguaPrincipal' // Lenguas
+        'tipoRelacion', 'numeroCelular', // RepresentanteLegal específico        'departamento', 'provincia', 'distrito', 'direccion' // Ubicacion
       ],
       'ESTUDIANTE': [
         'nombres', 'aPaterno', 'fechaNacimiento', 'sexo',  // Persona
         'tipoDocumento', 'numeroDocumento',               // Documento
         'lugarNacimientoDepartamento', 'lugarNacimientoProvincia', 'lugarNacimientoDistrito', 'lugarNacimientoDireccion', // Lugar nacimiento (Ubicacion)
         'domicilioActualDepartamento', 'domicilioActualProvincia', 'domicilioActualDistrito', 'domicilioActualDireccion',   // Domicilio actual (Ubicacion)
-        'lenguaPrincipal',        // Lenguas
         'tieneDispositivosElectronicos', 'tieneInternet'  // Datos adicionales
-        // 'etnia' y 'discapacidad' pueden ser opcionales
+        // 'tieneDiscapacidad' puede ser opcional
       ]
     };
   }

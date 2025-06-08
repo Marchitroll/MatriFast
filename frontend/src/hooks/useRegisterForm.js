@@ -53,66 +53,63 @@ export function useRegisterForm() {
     }
     
     return { esValido: true, mensaje: null };
-  };
-  /**
+  };  /**
    * Maneja el envío del formulario
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    // Validar campos comunes
-    const { esValido: camposComunesValidos, mensaje: mensajeCamposComunes } = validarCamposComunes();
-    if (!camposComunesValidos) {
-      setError(mensajeCamposComunes);
-      return;
-    }
-    
-    // Validar campos específicos según rol
-    const { esValido: camposEspecificosValidos, mensaje: mensajeCamposEspecificos } = 
-      usuarioService.validarCamposRequeridos(role, roleSpecificData);
-    if (!camposEspecificosValidos) {
-      setError(mensajeCamposEspecificos);
-      return;
-    }
-    
     setIsLoading(true);
     
-    try {      // 1. Registrar en Authentication con AuthContext
+    try {
+      // 1. Validar campos comunes
+      const { esValido: camposComunesValidos, mensaje: mensajeCamposComunes } = validarCamposComunes();
+      if (!camposComunesValidos) {
+        setError(mensajeCamposComunes);
+        return;
+      }
+      
+      // 2. Datos completos para el registro
+      const datosCompletos = {
+        email,
+        password,
+        role
+      };
+      
+      // 3. NUEVO: Validación completa y persistencia PRIMERO
+      const resultado = await usuarioService.registrarUsuarioCompleto(
+        datosCompletos, 
+        roleSpecificData
+      );
+      
+      if (!resultado.success) {
+        setError(resultado.error || 'Error al procesar el registro');
+        return;
+      }
+      
+      console.log('Datos persistidos exitosamente:', resultado.data);
+      
+      // 4. SOLO SI TODO SALE BIEN: Crear en Auth
       const authResult = await registrarNuevoUsuario(email, password);
+      
       if (!authResult.success) {
-        setError(authResult.error || 'Error al registrar el usuario en sistema de autenticación');
+        setError('Los datos fueron guardados correctamente, pero hubo un problema con la autenticación. Contacte soporte técnico con este código: REG-AUTH-ERR');
+        console.error('Error en Auth post-persistencia:', {
+          idUsuario: resultado.data.idUsuario,
+          error: authResult.error,
+          timestamp: new Date().toISOString()      });
         return;
       }
       
       console.log('Usuario registrado en Auth:', authResult.data);
       
-      // Obtener el ID del usuario autenticado para las relaciones en BD
-      const authUserId = authResult.data.user.id;
-      console.log('ID de usuario autenticado:', authUserId);
+      // 5. Registro completado exitosamente
+      setRegistroCompleto(true);
+      console.log('Registro completo exitoso');
       
-      // 2. Datos comunes para todos los usuarios
-      const datosUsuario = {
-        email,
-        role
-      };
-        // 3. Registrar usuario completo (objetos + persistencia) usando UsuarioService
-      const resultado = await usuarioService.registrarUsuarioCompleto(
-        datosUsuario, 
-        roleSpecificData
-      );
-      if (!resultado.success) {
-        console.error('Error al registrar usuario completo:', resultado.error);
-        setError(resultado.error || 'Error al procesar el registro');
-        // Nota: Aquí idealmente deberíamos eliminar el usuario de Auth
-        // pero omitimos ese paso según lo acordado
-      } else {
-        // Registro exitoso
-        setRegistroCompleto(true);
-        console.log('Usuario registrado exitosamente en BD:', resultado.data);
-      }
     } catch (error) {
       console.error('Error inesperado en el registro:', error);
-      setError('Ocurrió un error inesperado procesando los datos.');
+      setError('Error inesperado. Contacte soporte técnico.');
     } finally {
       setIsLoading(false);
     }

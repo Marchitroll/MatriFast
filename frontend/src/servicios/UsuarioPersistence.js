@@ -154,34 +154,25 @@ class UsuarioPersistence extends IUsuarioPersistence {
       error: 'Persistencia de representante legal no implementada todavía' 
     };
   }
-
   /**
  * Persiste los datos del estudiante junto con objetos relacionados
  * @param {object} estudiante - Objeto estudiante a persistir
- * @param {object} objetos - Objetos adicionales relacionados (lugarNacimiento, domicilioActual, lengua, discapacidad, representanteLegalInscriptor)
+ * @param {object} objetos - Objetos adicionales relacionados (lugarNacimiento, domicilioActual, representanteLegalInscriptor)
  * @returns {Promise<object>} Resultado de la operación
  */
 async persistirEstudiante(estudiante, objetos = {}) {
-  try {
-    const {
+  try {    const {
       lugarNacimiento,
       domicilioActual,
-      lengua,
-      discapacidad,
       representanteLegalInscriptor
     } = objetos;
 
     // Validar que los objetos relacionados tengan un id (suponiendo que ya están persistidos)
     if (!lugarNacimiento || !lugarNacimiento.id) {
       return { success: false, error: 'Lugar de nacimiento inválido o no persistido' };
-    }
-    if (!domicilioActual || !domicilioActual.id) {
+    }    if (!domicilioActual || !domicilioActual.id) {
       return { success: false, error: 'Domicilio actual inválido o no persistido' };
     }
-    if (!lengua || !lengua.id) {
-      return { success: false, error: 'Lengua inválida o no persistida' };
-    }
-    // Discapacidad puede ser nulo, entonces no es obligatorio
     // Representante legal también obligatorio en este caso
     if (!representanteLegalInscriptor || !representanteLegalInscriptor.id) {
       return { success: false, error: 'Representante legal inválido o no persistido' };
@@ -271,15 +262,13 @@ async persistirEstudiante(estudiante, objetos = {}) {
       return { success: false, error: `Error al crear usuario: ${usuarioError.message}` };
     }
     const idUsuario = usuarioInserted.id;
-
+    
     // 6. Insertar en tabla Estudiante con referencias a objetos relacionados
     const estudianteData = {
       idUsuario: idUsuario,
       idLugarNacimiento: lugarNacimiento.id,
       idDomicilioActual: domicilioActual.id,
-      idLengua: lengua.id,
-      etnia: estudiante.etnia || null,
-      idDiscapacidad: discapacidad?.id || null,
+      tieneDiscapacidad: estudiante.tieneDiscapacidad || false,
       tieneDispositivosElectronicos: estudiante.tieneDispositivosElectronicos,
       tieneInternet: estudiante.tieneInternet,
       idRepresentanteLegalInscriptor: representanteLegalInscriptor.id
@@ -298,7 +287,6 @@ async persistirEstudiante(estudiante, objetos = {}) {
       message: 'Estudiante registrado exitosamente',
       data: { idPersona, idUsuario }
     };
-
   } catch (error) {
     return { success: false, error: error.message };
   }

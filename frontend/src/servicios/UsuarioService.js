@@ -52,80 +52,73 @@ class UsuarioService {
     return await this.creator.crearUsuario(datosUsuario, datosEspecificos);
   }  /**
    * Registra un nuevo usuario (completo, incluyendo persistencia)
-   * @param {object} datosUsuario Datos comunes del usuario
+   * @param {object} datosCompletos Datos completos incluyendo email, password, role
    * @param {object} datosEspecificos Datos específicos según el rol
    * @returns {Promise<object>} Resultado del registro
    */
-  async registrarUsuarioCompleto(datosUsuario, datosEspecificos) {
-    // 1. Primero crear los objetos de dominio usando el método existente
-    const resultado = await this.registrarUsuario(datosUsuario, datosEspecificos);
-    if (!resultado.success) {
-      return resultado;
-    }
+  async registrarUsuarioCompleto(datosCompletos, datosEspecificos) {
+    const { email, password, role, ...datosUsuario } = datosCompletos;
     
-    // 2. Luego persistir los datos según el rol
-    const { role } = datosUsuario;
-    
-    if (role === 'DOCENTE') {
-      logger.info('Iniciando persistencia de docente');
-      const persistenciaResult = await this.persistence.persistirDocente(resultado.data.docente);
+    try {
+      // 1. Validación exhaustiva
+      logger.info(`Iniciando registro completo para rol: ${role}`);
       
-      if (!persistenciaResult.success) {
-        logger.error('Error al persistir docente', persistenciaResult.error);
-        return {
-          success: false,
-          error: `Error al guardar en base de datos: ${persistenciaResult.error}`,
-          data: resultado.data // Incluir los objetos creados para posible uso
-        };
+      // 2. Validar campos específicos
+      const validacion = this.validator.validarCamposRequeridos(role, datosEspecificos);
+      if (!validacion.esValido) {
+        return { success: false, error: validacion.mensaje };
       }
       
-      // Combinar el resultado original con los IDs de la base de datos
-      return {
-        success: true,
-        data: {
-          ...resultado.data,
-          idPersona: persistenciaResult.data.idPersona,
-          idUsuario: persistenciaResult.data.idUsuario
-        }
-      };
-    } 
+      // 3. Crear objetos de dominio
+      const datosParaCreacion = { email, role, ...datosUsuario };
+      const resultado = await this.registrarUsuario(datosParaCreacion, datosEspecificos);
+      if (!resultado.success) {
+        return resultado;
+      }
+      
+      // 4. Persistir según el rol
+      const persistenciaResult = await this.persistirSegunRol(role, resultado.data);
+      
+      return persistenciaResult;
+      
+    } catch (error) {
+      logger.error('Error en registro completo:', error);
+      return { success: false, error: error.message };
+    }  }
 
-    else if (role === 'ESTUDIANTE') {
-    logger.info('Iniciando persistencia de estudiante');
-    const persistenciaResult = await this.persistence.persistirEstudiante(resultado.data.estudiante, {
-      lugarNacimiento: resultado.data.lugarNacimiento,
-      domicilioActual: resultado.data.domicilioActual,
-      lengua: resultado.data.lengua,
-      representanteLegalInscriptor: resultado.data.representanteLegal
-    });
-    if (!persistenciaResult.success) {
-      logger.error('Error al persistir estudiante', persistenciaResult.error);
-      return {
-        success: false,
-        error: `Error al guardar en base de datos: ${persistenciaResult.error}`,
-        data: resultado.data
-      };
+  /**
+   * Extrae la lógica de persistencia según el rol
+   * @param {string} role Rol del usuario
+   * @param {object} objetos Objetos de dominio creados
+   * @returns {Promise<object>} Resultado de la persistencia
+   */
+  async persistirSegunRol(role, objetos) {
+    switch (role) {
+      case 'DOCENTE':
+        logger.info('Iniciando persistencia de docente');
+        return await this.persistence.persistirDocente(objetos.docente);
+        
+      case 'ESTUDIANTE':
+        logger.info('Iniciando persistencia de estudiante');
+        return await this.persistence.persistirEstudiante(
+          objetos.estudiante, 
+          {
+            lugarNacimiento: objetos.lugarNacimiento,
+            domicilioActual: objetos.domicilioActual,
+            representanteLegalInscriptor: objetos.representanteLegal
+          }
+        );
+        
+      case 'REPRESENTANTE LEGAL':
+        logger.info('Iniciando persistencia de representante legal');
+        return await this.persistence.persistirRepresentanteLegal(
+          objetos.representanteLegal,
+          { direccion: objetos.direccion }
+        );
+        
+      default:
+        return { success: false, error: `Rol no soportado: ${role}` };
     }
-    return {
-      success: true,
-      data: {
-        ...resultado.data,
-        idPersona: persistenciaResult.data.idPersona,
-        idUsuario: persistenciaResult.data.idUsuario
-      }
-    };      
-    }
-      else if (role === 'REPRESENTANTE LEGAL') {
-      // Implementar cuando se necesite
-      return {
-        success: false,
-        error: 'Persistencia de representante legal no implementada todavía',
-        data: resultado.data
-      };
-    }
-    
-    // Para otros roles, solo retornar el resultado original
-    return resultado;
   }
 }
 

@@ -1,26 +1,21 @@
 import Usuario from './Usuario';
 import Ubicacion from './Ubicacion';
-import Lenguas from './Lenguas';
 import listaDeTiposRelacionPermitidos from './enums/TiposRelacion';
 import Estudiante from './Estudiante';
 
 class RepresentanteLegal extends Usuario {
   #tipoRelacion;
   #direccion;
-  #perfilLinguistico;
-  #etnia;
   #numeroCelular;
   #estudiantes;
   #viveConEstudiante;
 
   constructor(id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento, email, rol, 
-              tipoRelacion, direccion, perfilLinguistico, etnia = null, numeroCelular, viveConEstudiante = false) {
+              tipoRelacion, direccion, numeroCelular, viveConEstudiante = false) {
     super(id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento, email, rol);
     
     this.tipoRelacion = tipoRelacion;
     this.direccion = direccion;
-    this.perfilLinguistico = perfilLinguistico;
-    this.etnia = etnia;
     this.numeroCelular = numeroCelular;
     this.viveConEstudiante = viveConEstudiante;
     this.#estudiantes = [];
@@ -54,32 +49,6 @@ class RepresentanteLegal extends Usuario {
     this.#direccion = valor;
   }
 
-  get perfilLinguistico() {
-    return this.#perfilLinguistico;
-  }
-
-  set perfilLinguistico(valor) {
-    if (!(valor instanceof Lenguas)) {
-      throw new TypeError('El perfil lingüístico debe ser una instancia de Lenguas.');
-    }
-    this.#perfilLinguistico = valor;
-  }
-
-  get etnia() {
-    return this.#etnia;
-  }
-
-  set etnia(valor) {
-    if (valor === null || valor === undefined) {
-      this.#etnia = null;
-    } else if (typeof valor === 'string') {
-      const etniaRecortada = valor.trim();
-      // Si después de recortar es una cadena vacía, se considera como null (opcional)
-      this.#etnia = etniaRecortada === '' ? null : etniaRecortada;
-    } else {
-      throw new TypeError('La etnia debe ser una cadena de texto o nula.');
-    }
-  }
 
   get numeroCelular() {
     return this.#numeroCelular;
@@ -153,14 +122,11 @@ class RepresentanteLegal extends Usuario {
   toString() {
     return `Representante Legal: ${super.toString()} - Relación: ${this.#tipoRelacion} - Celular: ${this.#numeroCelular} - Vive con estudiante: ${this.#viveConEstudiante ? 'Sí' : 'No'}`;
   }
-
   toPlainObject() {
     return {
       ...super.toPlainObject(),
       tipoRelacion: this.#tipoRelacion,
       direccion: this.#direccion ? this.#direccion.toPlainObject() : null,
-      perfilLinguistico: this.#perfilLinguistico ? this.#perfilLinguistico.toPlainObject() : null,
-      etnia: this.#etnia || null,
       numeroCelular: this.#numeroCelular,
       viveConEstudiante: this.#viveConEstudiante,
       estudiantes: this.#estudiantes.map(e => ({ id: e.id }))

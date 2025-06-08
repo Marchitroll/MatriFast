@@ -15,8 +15,7 @@ class ConsoleLogger extends ILogger {
     super();
     this.verbose = verbose;
   }
-  
-  /**
+    /**
    * Registra un mensaje informativo
    * @param {string} message - Mensaje a mostrar
    * @param {object} [data] - Datos adicionales (solo se muestran en modo verbose)
@@ -26,6 +25,19 @@ class ConsoleLogger extends ILogger {
       console.log(`INFO: ${message}`, data);
     } else {
       console.log(`INFO: ${message}`);
+    }
+  }
+  
+  /**
+   * Registra un mensaje de advertencia
+   * @param {string} message - Mensaje de advertencia
+   * @param {object} [data] - Datos adicionales
+   */
+  warn(message, data) {
+    if (data) {
+      console.warn(`WARN: ${message}`, data);
+    } else {
+      console.warn(`WARN: ${message}`);
     }
   }
   

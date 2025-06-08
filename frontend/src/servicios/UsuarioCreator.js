@@ -6,8 +6,6 @@ import DocenteFactory from '../modelos/Fabricas/DocenteFactory';
 import RepresentanteLegalFactory from '../modelos/Fabricas/RepresentanteLegalFactory';
 import Documento from '../modelos/Documento';
 import Ubicacion from '../modelos/Ubicacion';
-import Lenguas from '../modelos/Lenguas';
-import TIPOS_LENGUAS from '../modelos/enums/TiposLenguas';
 import logger from './Logger';
 import EstudianteFactory from '../modelos/Fabricas/EstudianteFactory';
 
@@ -63,36 +61,6 @@ class UsuarioCreator extends IUsuarioCreator {
       return { ubicacion: null, error: error.message };
     }
   }
-
-  /**
-   * Crea un objeto Lenguas a partir de los datos del formulario
-   * @param {object} formData Datos del formulario
-   * @returns {object} { perfilLinguistico, error }
-   * @private
-   */
-  #crearPerfilLinguistico(formData) {
-    try {
-      const lenguaPrincipalValue = TIPOS_LENGUAS[formData.lenguaPrincipal];
-      const lenguaSecundariaValue = formData.lenguaSecundaria ? TIPOS_LENGUAS[formData.lenguaSecundaria] : null;
-
-      if (!lenguaPrincipalValue) {
-        const error = `Valor de lengua principal no encontrado: ${formData.lenguaPrincipal}`;
-        return { perfilLinguistico: null, error };
-      }
-
-      if (formData.lenguaSecundaria && !lenguaSecundariaValue) {
-        const error = `Valor de lengua secundaria no encontrado: ${formData.lenguaSecundaria}`;
-        return { perfilLinguistico: null, error };
-      }
-
-      const perfilLinguistico = new Lenguas(lenguaPrincipalValue, lenguaSecundariaValue);
-      return { perfilLinguistico, error: null };
-    } catch (error) {
-      logger.error('Error al crear perfil lingüístico', error);
-      return { perfilLinguistico: null, error: error.message };
-    }
-  }
-
   /**
    * Crea un objeto Docente
    * @param {object} datosUsuario - Datos comunes del usuario
@@ -135,7 +103,6 @@ class UsuarioCreator extends IUsuarioCreator {
       return { success: false, error: error.message };
     }
   }
-
   async #crearObjetoEstudiante(datosUsuario, datosEstudiante) {
     const { documento, error: docError } = this.#crearDocumento(datosEstudiante);
     if (docError) return { success: false, error: `Error al crear documento: ${docError}` };
@@ -150,9 +117,6 @@ class UsuarioCreator extends IUsuarioCreator {
 
     const { ubicacion: domicilioActual, error: domicilioError } = this.#crearUbicacion(datosEstudiante);
     if (domicilioError) return { success: false, error: `Error en domicilio actual: ${domicilioError}` };
-
-    const { perfilLinguistico, error: lenguaError } = this.#crearPerfilLinguistico(datosEstudiante);
-    if (lenguaError) return { success: false, error: `Error en perfil lingüístico: ${lenguaError}` };
 
     // Crear representante legal
     const rlResult = await this.#crearObjetoRepresentanteLegal(datosUsuario, datosEstudiante.representanteLegalInscriptor);
@@ -169,11 +133,9 @@ class UsuarioCreator extends IUsuarioCreator {
         datosEstudiante.sexo,
         documento,
         lugarNacimiento,
-        perfilLinguistico,
-        datosEstudiante.etnia || null,
-        datosEstudiante.discapacidad || null,
+        datosEstudiante.tieneDiscapacidad || false,
         domicilioActual,
-        !!datosEstudiante.tieneDispositivosElectronicos,
+        datosEstudiante.tieneDispositivosElectronicos || false,
         !!datosEstudiante.tieneInternet,
         representanteLegal
       );
@@ -185,7 +147,6 @@ class UsuarioCreator extends IUsuarioCreator {
           documento,
           lugarNacimiento,
           domicilioActual,
-          perfilLinguistico,
           representanteLegal
         }
       };
@@ -194,7 +155,6 @@ class UsuarioCreator extends IUsuarioCreator {
       return { success: false, error: error.message };
     }
   }
-
 
   /**
    * Crea un objeto RepresentanteLegal
@@ -216,12 +176,6 @@ class UsuarioCreator extends IUsuarioCreator {
       return { success: false, error: `Error al crear la ubicación: ${ubicacionError}` };
     }
 
-    // Crear perfil lingüístico
-    const { perfilLinguistico, error: lenguasError } = this.#crearPerfilLinguistico(datosRL);
-    if (lenguasError) {
-      return { success: false, error: `Error al crear el perfil lingüístico: ${lenguasError}` };
-    }
-
     try {
       const { email, role } = datosUsuario;
       const {
@@ -232,7 +186,6 @@ class UsuarioCreator extends IUsuarioCreator {
         sexo,
         tipoRelacion,
         numeroCelular,
-        etnia,
         viveConEstudiante
       } = datosRL;
 
@@ -251,8 +204,6 @@ class UsuarioCreator extends IUsuarioCreator {
         role,
         tipoRelacion,
         ubicacion,
-        perfilLinguistico,
-        etnia || null,
         numeroCelular,
         !!viveConEstudiante
       );
@@ -262,8 +213,7 @@ class UsuarioCreator extends IUsuarioCreator {
         data: {
           representanteLegal: nuevoRL,
           documento,
-          ubicacion,
-          perfilLinguistico
+          ubicacion
         }
       };
     } catch (error) {

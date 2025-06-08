@@ -1,11 +1,8 @@
 import PropTypes from 'prop-types';
 import AuthFormField from './AuthFormField';
-import TIPOINGRESO from '../modelos/enums/TiposIngreso';
 import MODALIDAD from '../modelos/enums/Modalidad';
-import EXONERACION from '../modelos/enums/TiposDiscapacidad'; // O crea otro enum específico si no aplica este
 import SEXOS from '../modelos/enums/Sexos';
 import listaDeTiposDocumentoPermitidos from '../modelos/enums/TiposDocumento';
-import TIPOS_LENGUAS from '../modelos/enums/TiposLenguas';
 
 function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
   return (
@@ -162,52 +159,6 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         disabled={isLoading}
       />
 
-      {/* Campos para Perfil Lingüístico (Lenguas) - Simplificado */}
-      <div className="form-group">
-        <label htmlFor="lenguaPrincipalRL">Lengua Principal:</label>
-        <select
-          id="lenguaPrincipalRL"
-          name="lenguaPrincipal"
-          value={formData.lenguaPrincipal || ''}
-          onChange={(e) => onFormDataChange('lenguaPrincipal', e.target.value)}
-          required
-          disabled={isLoading}
-        >
-          <option value="">Seleccione lengua principal</option>
-          {Object.entries(TIPOS_LENGUAS).map(([key, value]) => (
-            <option key={`lp-rl-${key}`} value={key}>
-              {value}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="form-group">
-        <label htmlFor="lenguaSecundariaRL">Lengua Secundaria (Opcional):</label>
-        <select
-          id="lenguaSecundariaRL"
-          name="lenguaSecundaria"
-          value={formData.lenguaSecundaria || ''}
-          onChange={(e) => onFormDataChange('lenguaSecundaria', e.target.value)}
-          disabled={isLoading}
-        >
-          <option value="">Seleccione lengua secundaria (si aplica)</option>
-          {Object.entries(TIPOS_LENGUAS).map(([key, value]) => (
-            <option key={`ls-rl-${key}`} value={key}>
-              {value}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <AuthFormField
-        label="Etnia (Opcional):"
-        type="text"
-        id="etniaRL"
-        name="etnia"
-        value={formData.etnia || ''}
-        onChange={(e) => onFormDataChange('etnia', e.target.value)}
-        disabled={isLoading}
-      />
       <div></div>
       <div className="form-group form-check">
         <input
@@ -246,28 +197,7 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
         value={formData.dniRepresentante || ''}
         onChange={(e) => onFormDataChange('dniRepresentante', e.target.value)}
         disabled={isLoading}
-      />
-
-      <h3>Servicio Educativo Solicitado</h3>
-
-      {/* Tipo de Ingreso */}
-      <div className="form-group">
-        <label htmlFor="ingreso">Ingreso:</label>
-        <select
-          id="ingreso"
-          name="ingreso"
-          value={formData.ingreso || ''}
-          onChange={(e) => onFormDataChange('ingreso', e.target.value)}
-          disabled={isLoading}
-        >
-          <option value="">Seleccione Tipo Ingreso</option>
-          {TIPOINGRESO.map((s) => (
-            <option key={`Ingreso-${s}`} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-      </div>
+      />      <h3>Servicio Educativo Solicitado</h3>
 
       {/* Modalidad */}
       <div className="form-group">
@@ -335,11 +265,11 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
           disabled={isLoading}
         >
           <option value="">Seleccione opción</option>
-          {EXONERACION.map((s) => (
+          {/* {EXONERACION.map((s) => (
             <option key={`exoneracion-${s}`} value={s}>
               {s}
             </option>
-          ))}
+          ))} */}
         </select>
       </div>
 

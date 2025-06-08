@@ -5,8 +5,7 @@ import RepresentanteLegal from '../RepresentanteLegal';
  * Creador concreto para instanciar RepresentanteLegal.
  * Implementa el método crearUsuario de la interfaz UsuarioFactory.
  */
-class RepresentanteLegalFactory extends UsuarioFactory {
-  /**
+class RepresentanteLegalFactory extends UsuarioFactory {  /**
    * Crea una instancia completa de RepresentanteLegal con todos sus atributos específicos
    * 
    * @param {string|number} id - Identificador único del usuario
@@ -20,19 +19,17 @@ class RepresentanteLegalFactory extends UsuarioFactory {
    * @param {string} rol - Rol del usuario en el sistema
    * @param {string} tipoRelacion - Tipo de relación con el estudiante (PADRE, MADRE, TUTOR, etc.)
    * @param {Ubicacion} direccion - Dirección del representante legal
-   * @param {Lenguas} perfilLinguistico - Perfil lingüístico del representante
-   * @param {string|null} etnia - Etnia del representante (opcional)
    * @param {string} numeroCelular - Número de celular del representante
    * @param {boolean} viveConEstudiante - Indica si vive con el estudiante
    * @returns {RepresentanteLegal} Nueva instancia de RepresentanteLegal
    */
   crearUsuario(
     id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento, email, rol,
-    tipoRelacion, direccion, perfilLinguistico, etnia, numeroCelular, viveConEstudiante = false
+    tipoRelacion, direccion, numeroCelular, viveConEstudiante = false
   ) {
     return new RepresentanteLegal(
       id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento, email, rol,
-      tipoRelacion, direccion, perfilLinguistico, etnia, numeroCelular, viveConEstudiante
+      tipoRelacion, direccion, numeroCelular, viveConEstudiante
     );
   }
 }

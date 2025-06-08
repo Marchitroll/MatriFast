@@ -1,24 +1,17 @@
 import Usuario from './Usuario';
 import Ubicacion from './Ubicacion';
-import Lenguas from './Lenguas';
-import Discapacidad from './Discapacidad';
 import RepresentanteLegal from './RepresentanteLegal';
 
 class Estudiante extends Usuario {
     #lugarNacimiento;
-    #lengua;
-    #etnia;
-    #discapacidad;
+    #tieneDiscapacidad;
     #domicilioActual;
     #tieneDispositivosElectronicos;
     #tieneInternet;
-    #representanteLegalInscriptor;
-    constructor(id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento, lugarNacimiento, lengua, etnia = null, discapacidad = null, domicilioActual, tieneDispositivosElectronicos, tieneInternet, representanteLegalInscriptor) {
+    #representanteLegalInscriptor;    constructor(id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento, lugarNacimiento, tieneDiscapacidad = false, domicilioActual, tieneDispositivosElectronicos, tieneInternet, representanteLegalInscriptor) {
         super(id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento);
         this.lugarNacimiento = lugarNacimiento;
-        this.lengua = lengua;
-        this.etnia = etnia;
-        this.discapacidad = discapacidad;
+        this.tieneDiscapacidad = tieneDiscapacidad;
         this.domicilioActual = domicilioActual;
         this.tieneDispositivosElectronicos = tieneDispositivosElectronicos;
         this.tieneInternet = tieneInternet;
@@ -33,48 +26,17 @@ class Estudiante extends Usuario {
         if (!(valor instanceof Ubicacion)) {
             throw new TypeError('El lugar de nacimiento debe ser una instancia de Ubicacion.');
         }
-        this.#lugarNacimiento = valor;
+        this.#lugarNacimiento = valor;    }
+
+    get tieneDiscapacidad() {
+        return this.#tieneDiscapacidad;
     }
 
-    get lengua() {
-        return this.#lengua;
-    }
-
-    set lengua(valor) {
-        if (!(valor instanceof Lenguas)) {
-            throw new TypeError('La lengua debe ser una instancia de Lenguas.');
+    set tieneDiscapacidad(valor) {
+        if (typeof valor !== 'boolean') {
+            throw new TypeError('El atributo tieneDiscapacidad debe ser booleano.');
         }
-        this.#lengua = valor;
-    }
-
-    get etnia() {
-        return this.#etnia;
-    }
-
-    set etnia(valor) {
-        if (valor === null || valor === undefined) {
-            this.#etnia = null;
-        } else if (typeof valor === 'string') {
-            const etniaRecortada = valor.trim();
-            // Si después de recortar es una cadena vacía, se considera como null (opcional)
-            this.#etnia = etniaRecortada === '' ? null : etniaRecortada;
-        } else {
-            throw new TypeError('La etnia debe ser una cadena de texto o nula.');
-        }
-    }
-
-    get discapacidad() {
-        return this.#discapacidad;
-    }
-
-    set discapacidad(valor) {
-        if (valor === null || valor === undefined) {
-            this.#discapacidad = null;
-        } else if (!(valor instanceof Discapacidad)) {
-            throw new TypeError('El atributo discapacidad debe ser una instancia de Discapacidad o nulo.');
-        } else {
-            this.#discapacidad = valor;
-        }
+        this.#tieneDiscapacidad = valor;
     }
 
     get domicilioActual() {
@@ -119,17 +81,9 @@ class Estudiante extends Usuario {
             throw new TypeError('El representante legal inscriptor debe ser una instancia de RepresentanteLegal.');
         }
         this.#representanteLegalInscriptor = valor;
-    }
-
-    tieneCertificadoValido() {
-        return this.#discapacidad !== null && this.#discapacidad !== undefined;
-    }
-
-    toString() {
-        return `Estudiante: ${super.toString()} - Lugar de nacimiento: ${this.#lugarNacimiento ? this.#lugarNacimiento.direccion : 'No especificado'} - Domicilio actual: ${this.#domicilioActual ? this.#domicilioActual.direccion : 'No especificado'} - Lengua: ${this.#lengua ? this.#lengua.toString() : 'No especificado'} - Etnia: ${this.#etnia || 'No especificado'} - Discapacidad: ${this.#discapacidad ? this.#discapacidad.toString() : 'No especificado'} - Dispositivos electrónicos: ${this.#tieneDispositivosElectronicos ? 'Sí' : 'No'} - Internet: ${this.#tieneInternet ? 'Sí' : 'No'} - Representante legal inscriptor: ${this.#representanteLegalInscriptor ? this.#representanteLegalInscriptor.toString() : 'No especificado'}`;
-    }
-
-    toPlainObject() {
+    }    toString() {
+        return `Estudiante: ${super.toString()} - Lugar de nacimiento: ${this.#lugarNacimiento ? this.#lugarNacimiento.direccion : 'No especificado'} - Domicilio actual: ${this.#domicilioActual ? this.#domicilioActual.direccion : 'No especificado'} - Tiene discapacidad: ${this.#tieneDiscapacidad ? 'Sí' : 'No'} - Dispositivos electrónicos: ${this.#tieneDispositivosElectronicos ? 'Sí' : 'No'} - Internet: ${this.#tieneInternet ? 'Sí' : 'No'} - Representante legal inscriptor: ${this.#representanteLegalInscriptor ? this.#representanteLegalInscriptor.toString() : 'No especificado'}`;
+    }    toPlainObject() {
         return {
             ...super.toPlainObject(),
             lugarNacimiento: this.#lugarNacimiento
@@ -138,9 +92,7 @@ class Estudiante extends Usuario {
             domicilioActual: this.#domicilioActual
                 ? this.#domicilioActual.toPlainObject()
                 : null,
-            lengua: this.#lengua ? this.#lengua.toPlainObject() : null,
-            etnia: this.#etnia || null,
-            discapacidad: this.#discapacidad ? this.#discapacidad.toPlainObject() : null,
+            tieneDiscapacidad: this.#tieneDiscapacidad,
             tieneDispositivosElectronicos: this.#tieneDispositivosElectronicos,
             tieneInternet: this.#tieneInternet,
             representanteLegalInscriptor: this.#representanteLegalInscriptor ? this.#representanteLegalInscriptor.toPlainObject() : null

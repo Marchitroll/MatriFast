@@ -3,7 +3,6 @@ import AuthFormField from './AuthFormField';
 import listaDeTiposDocumentoPermitidos from '../modelos/enums/TiposDocumento';
 import SEXOS from '../modelos/enums/Sexos';
 import listaDeTiposRelacionPermitidos from '../modelos/enums/TiposRelacion';
-import TIPOS_LENGUAS from '../modelos/enums/TiposLenguas';
 
 function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
   const handleCheckboxChange = (field) => {
@@ -179,55 +178,7 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
         name="direccion" // Coincide con Ubicacion.js
         value={formData.direccion || ''}
         onChange={(e) => onFormDataChange('direccion', e.target.value)}
-        required // Obligatorio según Ubicacion.js
-        disabled={isLoading}
-      />
-
-      {/* Campos para Perfil Lingüístico (Lenguas) - Simplificado */}
-      <div className="form-group">
-        <label htmlFor="lenguaPrincipalRL">Lengua Principal:</label>
-        <select
-          id="lenguaPrincipalRL"
-          name="lenguaPrincipal"
-          value={formData.lenguaPrincipal || ''}
-          onChange={(e) => onFormDataChange('lenguaPrincipal', e.target.value)}
-          required
-          disabled={isLoading}
-        >
-          <option value="">Seleccione lengua principal</option>
-          {Object.entries(TIPOS_LENGUAS).map(([key, value]) => (
-            <option key={`lp-rl-${key}`} value={key}>
-              {value}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="form-group">
-        <label htmlFor="lenguaSecundariaRL">Lengua Secundaria (Opcional):</label>
-        <select
-          id="lenguaSecundariaRL"
-          name="lenguaSecundaria"
-          value={formData.lenguaSecundaria || ''}
-          onChange={(e) => onFormDataChange('lenguaSecundaria', e.target.value)}
-          disabled={isLoading}
-        >
-          <option value="">Seleccione lengua secundaria (si aplica)</option>
-          {Object.entries(TIPOS_LENGUAS).map(([key, value]) => (
-            <option key={`ls-rl-${key}`} value={key}>
-              {value}
-            </option>
-          ))}
-        </select>
-      </div>
-      
-      <AuthFormField
-        label="Etnia (Opcional):"
-        type="text"
-        id="etniaRL"
-        name="etnia"
-        value={formData.etnia || ''}
-        onChange={(e) => onFormDataChange('etnia', e.target.value)}
-        disabled={isLoading}
+        required // Obligatorio según Ubicacion.js        disabled={isLoading}
       />
 
       <div className="form-group form-check">
