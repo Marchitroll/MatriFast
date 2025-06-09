@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../funcionalidad/AuthContext';
 import { useRegisterForm } from '../hooks/useRegisterForm';
@@ -13,6 +13,8 @@ import DocenteFields from '../componentes/DocenteFields';
  * Componente para el registro de nuevos usuarios
  */
 function Register() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {
     email,
     setEmail,
@@ -21,16 +23,25 @@ function Register() {
     confirmPassword,
     setConfirmPassword,
     role,
-    roleSpecificData,
     isLoading,
     error,
     handleRoleChange,
     handleRoleSpecificDataChange,
-    handleSubmit
+    handleSubmit,
+    roleSpecificData
   } = useRegisterForm();
 
   const { session } = useAuth();
   const navigate = useNavigate();
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleShowConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   // Redirigir si ya hay sesión activa
   useEffect(() => {
     if (session) {
@@ -55,24 +66,62 @@ function Register() {
           required
           disabled={isLoading}
         />
-        <AuthFormField
-          label="Contraseña:"
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={isLoading}
-        />
-        <AuthFormField
-          label="Confirmar Contraseña:"
-          type="password"
-          id="confirmPassword"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          disabled={isLoading}
-        />
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
+          <AuthFormField
+            label="Contraseña:"
+            type={showPassword ? 'text' : 'password'}
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+          <button
+            type="button"
+            onClick={toggleShowPassword}
+            style={{
+              position: 'absolute',
+              right: '10px',
+              top: 'calc(1em + 10px + 5px + 10px)', // Ajusta según tu CSS
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1.2em'
+            }}
+            title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          >
+            {showPassword ? '🙈' : '👁️'}
+          </button>
+        </div>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
+          <AuthFormField
+            label="Confirmar Contraseña:"
+            type={showConfirmPassword ? 'text' : 'password'}
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+          <button
+            type="button"
+            onClick={toggleShowConfirmPassword}
+            style={{
+              position: 'absolute',
+              right: '10px',
+              top: 'calc(1em + 10px + 5px + 10px)', // Ajusta según tu CSS
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1.2em'
+            }}
+            title={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          >
+            {showConfirmPassword ? '🙈' : '👁️'}
+          </button>
+        </div>
         <RoleSelect
           id="role"
           value={role}

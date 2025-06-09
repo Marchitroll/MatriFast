@@ -8,6 +8,7 @@ import AuthSubmitButton from '../componentes/AuthSubmitButton';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // Estado para visibilidad
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { session, iniciarSesion } = useAuth();
@@ -45,6 +46,10 @@ function Login() {
     }
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <AuthPageLayout
       title="Iniciar Sesión - Portal de Matrículas"
@@ -62,15 +67,34 @@ function Login() {
           required
           disabled={isLoading}
         />
-        <AuthFormField
-          label="Contraseña:"
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={isLoading}
-        />
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
+          <AuthFormField
+            label="Contraseña:"
+            type={showPassword ? 'text' : 'password'}
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+          <button
+            type="button"
+            onClick={toggleShowPassword}
+            style={{
+              position: 'absolute',
+              right: '10px',
+              top: 'calc(1em + 10px + 5px + 10px)', // Ajusta esto según el padding/margin de tu label y input
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1.2em'
+            }}
+            title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          >
+            {showPassword ? '🙈' : '👁️'}
+          </button>
+        </div>
         <AuthSubmitButton
           isLoading={isLoading}
           loadingText="Ingresando..."
