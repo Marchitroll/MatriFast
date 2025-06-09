@@ -15,7 +15,7 @@ export default class IUsuarioPersistence {
   /**
    * Persiste un representante legal en la base de datos
    * @param {object} representanteLegal - Objeto representante legal a persistir
-   * @param {object} objetos - Objetos adicionales relacionados (ubicacion, perfilLinguistico)
+   * @param {object} objetos - Objetos adicionales relacionados (ej: { direccion: Ubicacion })
    * @returns {Promise<object>} Resultado de la operación
    */
   async persistirRepresentanteLegal(representanteLegal, objetos) {

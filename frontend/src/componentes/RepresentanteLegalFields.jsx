@@ -126,59 +126,18 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
         required
         disabled={isLoading}
         pattern="^9\d{8}$"
-        title="Debe ser un número de celular peruano válido (9 dígitos)."
-      />
+        title="Debe ser un número de celular peruano válido (9 dígitos)."      />
       
-      {/* Campos para Dirección (Ubicacion) */}
+      {/* Campo de Dirección (simplificado) */}
       <AuthFormField
-        label="Código UBIGEO (Opcional):"
-        type="text"
-        id="codUbigeoRL"
-        name="codUbigeo"
-        value={formData.codUbigeo || ''}
-        onChange={(e) => onFormDataChange('codUbigeo', e.target.value)}
-        disabled={isLoading}
-        pattern="^\d{6}$"
-        title="Debe ser un código UBIGEO de 6 dígitos (opcional)."
-      />
-      <AuthFormField
-        label="Departamento (Dirección):"
-        type="text"
-        id="departamentoDireccionRL"
-        name="departamento" // Coincide con Ubicacion.js
-        value={formData.departamento || ''}
-        onChange={(e) => onFormDataChange('departamento', e.target.value)}
-        required // Obligatorio según Ubicacion.js
-        disabled={isLoading}
-      />
-      <AuthFormField
-        label="Provincia (Dirección):"
-        type="text"
-        id="provinciaDireccionRL"
-        name="provincia" // Coincide con Ubicacion.js
-        value={formData.provincia || ''}
-        onChange={(e) => onFormDataChange('provincia', e.target.value)}
-        required // Obligatorio según Ubicacion.js
-        disabled={isLoading}
-      />
-      <AuthFormField
-        label="Distrito (Dirección):"
-        type="text"
-        id="distritoDireccionRL"
-        name="distrito" // Coincide con Ubicacion.js
-        value={formData.distrito || ''}
-        onChange={(e) => onFormDataChange('distrito', e.target.value)}
-        required // Obligatorio según Ubicacion.js
-        disabled={isLoading}
-      />
-      <AuthFormField
-        label="Dirección Específica:"
+        label="Dirección:"
         type="text"
         id="direccionRL"
-        name="direccion" // Coincide con Ubicacion.js
+        name="direccion"
         value={formData.direccion || ''}
         onChange={(e) => onFormDataChange('direccion', e.target.value)}
-        required // Obligatorio según Ubicacion.js        disabled={isLoading}
+        required
+        disabled={isLoading}
       />
 
       <div className="form-group form-check">

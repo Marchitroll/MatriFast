@@ -153,8 +153,7 @@ class UsuarioPersistence extends IUsuarioPersistence {
       success: false,
       error: 'Persistencia de representante legal no implementada todavía' 
     };
-  }
-  /**
+  }  /**
  * Persiste los datos del estudiante junto con objetos relacionados
  * @param {object} estudiante - Objeto estudiante a persistir
  * @param {object} objetos - Objetos adicionales relacionados (lugarNacimiento, domicilioActual, representanteLegalInscriptor)
@@ -167,15 +166,35 @@ async persistirEstudiante(estudiante, objetos = {}) {
       representanteLegalInscriptor
     } = objetos;
 
-    // Validar que los objetos relacionados tengan un id (suponiendo que ya están persistidos)
-    if (!lugarNacimiento || !lugarNacimiento.id) {
-      return { success: false, error: 'Lugar de nacimiento inválido o no persistido' };
-    }    if (!domicilioActual || !domicilioActual.id) {
-      return { success: false, error: 'Domicilio actual inválido o no persistido' };
+    // Validar que los objetos relacionados sean válidos
+    if (!lugarNacimiento) {
+      return { success: false, error: 'Lugar de nacimiento es requerido' };
+    }
+    if (!domicilioActual) {
+      return { success: false, error: 'Domicilio actual es requerido' };
     }
     // Representante legal también obligatorio en este caso
     if (!representanteLegalInscriptor || !representanteLegalInscriptor.id) {
       return { success: false, error: 'Representante legal inválido o no persistido' };
+    }
+
+    // Persistir ubicaciones si no tienen ID
+    let lugarNacimientoPersistido = lugarNacimiento;
+    if (!lugarNacimiento.id) {
+      const resultLugar = await this.#persistirUbicacion(lugarNacimiento);
+      if (!resultLugar.success) {
+        return { success: false, error: `Error al persistir lugar de nacimiento: ${resultLugar.error}` };
+      }
+      lugarNacimientoPersistido = resultLugar.data;
+    }
+
+    let domicilioActualPersistido = domicilioActual;
+    if (!domicilioActual.id) {
+      const resultDomicilio = await this.#persistirUbicacion(domicilioActual);
+      if (!resultDomicilio.success) {
+        return { success: false, error: `Error al persistir domicilio actual: ${resultDomicilio.error}` };
+      }
+      domicilioActualPersistido = resultDomicilio.data;
     }
 
     // 1. Obtener idSexo consultando tabla Sexo
@@ -262,12 +281,11 @@ async persistirEstudiante(estudiante, objetos = {}) {
       return { success: false, error: `Error al crear usuario: ${usuarioError.message}` };
     }
     const idUsuario = usuarioInserted.id;
-    
-    // 6. Insertar en tabla Estudiante con referencias a objetos relacionados
+      // 6. Insertar en tabla Estudiante con referencias a objetos relacionados
     const estudianteData = {
       idUsuario: idUsuario,
-      idLugarNacimiento: lugarNacimiento.id,
-      idDomicilioActual: domicilioActual.id,
+      idLugarNacimiento: lugarNacimientoPersistido.id,
+      idDomicilioActual: domicilioActualPersistido.id,
       tieneDiscapacidad: estudiante.tieneDiscapacidad || false,
       tieneDispositivosElectronicos: estudiante.tieneDispositivosElectronicos,
       tieneInternet: estudiante.tieneInternet,
@@ -291,6 +309,38 @@ async persistirEstudiante(estudiante, objetos = {}) {
     return { success: false, error: error.message };
   }
 }
+  /**
+   * Persiste una ubicación en la base de datos
+   * @param {Ubicacion} ubicacion - Objeto ubicación a persistir
+   * @returns {Promise<object>} Resultado con el ID de la ubicación persistida
+   * @private
+   */
+  async #persistirUbicacion(ubicacion) {
+    try {
+      const ubicacionData = {
+        direccion: ubicacion.direccion
+      };
+
+      const { data: ubicacionInserted, error: ubicacionError } = await this.supabase
+        .from('Ubicacion')
+        .insert(ubicacionData)
+        .select()
+        .single();
+
+      if (ubicacionError) {
+        logger.error('Error al persistir ubicación', ubicacionError);
+        return { success: false, error: `Error al persistir ubicación: ${ubicacionError.message}` };
+      }
+
+      return { 
+        success: true, 
+        data: { id: ubicacionInserted.id, direccion: ubicacionInserted.direccion }
+      };
+    } catch (error) {
+      logger.error('Error inesperado al persistir ubicación', error);
+      return { success: false, error: error.message };
+    }
+  }
 
 }
 

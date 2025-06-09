@@ -39,7 +39,6 @@ class UsuarioCreator extends IUsuarioCreator {
       return { documento: null, error: error.message };
     }
   }
-
   /**
    * Crea un objeto Ubicacion a partir de los datos del formulario
    * @param {object} formData Datos del formulario
@@ -48,13 +47,7 @@ class UsuarioCreator extends IUsuarioCreator {
    */
   #crearUbicacion(formData) {
     try {
-      const ubicacion = new Ubicacion(
-        formData.codUbigeo || '',
-        formData.direccion,
-        formData.departamento,
-        formData.provincia,
-        formData.distrito
-      );
+      const ubicacion = new Ubicacion(formData.direccion);
       return { ubicacion, error: null };
     } catch (error) {
       logger.error('Error al crear ubicación', error);
@@ -105,13 +98,8 @@ class UsuarioCreator extends IUsuarioCreator {
   }
   async #crearObjetoEstudiante(datosUsuario, datosEstudiante) {
     const { documento, error: docError } = this.#crearDocumento(datosEstudiante);
-    if (docError) return { success: false, error: `Error al crear documento: ${docError}` };
-
-    const { ubicacion: lugarNacimiento, error: nacimientoError } = this.#crearUbicacion({
-      direccion: datosEstudiante.lugarNacimientoDireccion,
-      departamento: datosEstudiante.lugarNacimientoDepartamento,
-      provincia: datosEstudiante.lugarNacimientoProvincia,
-      distrito: datosEstudiante.lugarNacimientoDistrito
+    if (docError) return { success: false, error: `Error al crear documento: ${docError}` };    const { ubicacion: lugarNacimiento, error: nacimientoError } = this.#crearUbicacion({
+      direccion: datosEstudiante.lugarNacimiento
     });
     if (nacimientoError) return { success: false, error: `Error en lugar de nacimiento: ${nacimientoError}` };
 
