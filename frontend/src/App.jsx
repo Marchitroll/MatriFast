@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
+import enumService from './servicios/EnumService.js';
 
 import Home from "./paginas/Home";
 import Login from "./paginas/Login";
@@ -7,6 +9,14 @@ import Formulario from "./paginas/Formulario";
 import Test from "./paginas/Test";
 
 export default function App() {
+    useEffect(() => {
+        // Iniciar la precarga de enumeraciones en segundo plano
+        enumService.preloadAll().then(() => {
+            console.log('Enumeraciones precargadas exitosamente');
+        }).catch((error) => {
+            console.warn('Error durante la precarga de enumeraciones:', error);
+        });
+    }, []);
     return (
         <BrowserRouter>
             <nav>

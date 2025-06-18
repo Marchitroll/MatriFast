@@ -1,10 +1,37 @@
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import AuthFormField from './AuthFormField';
-import MODALIDAD from '../modelos/enums/Modalidad';
-import SEXOS from '../modelos/enums/Sexos';
-import listaDeTiposDocumentoPermitidos from '../modelos/enums/TiposDocumento';
+import { getModalidades, defaultValues as modalidadDefault } from '../modelos/enums/Modalidad.js';
+import { getSexos, defaultValues as sexosDefault } from '../modelos/enums/Sexos.js';
+import { getTiposDocumento, defaultValues as tiposDocumentoDefault } from '../modelos/enums/TiposDocumento.js';
 
 function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
+  const [modalidades, setModalidades] = useState(modalidadDefault);
+  const [sexos, setSexos] = useState(sexosDefault);
+  const [tiposDocumento, setTiposDocumento] = useState(tiposDocumentoDefault);
+  const [enumsLoading, setEnumsLoading] = useState(true);
+
+  useEffect(() => {
+    const cargarEnums = async () => {
+      try {
+        const [modalidadesData, sexosData, tiposDoc] = await Promise.all([
+          getModalidades(),
+          getSexos(),
+          getTiposDocumento()
+        ]);
+        
+        setModalidades(modalidadesData);
+        setSexos(sexosData);
+        setTiposDocumento(tiposDoc);
+      } catch (error) {
+        console.warn('Error cargando enumeraciones, usando valores por defecto:', error);
+      } finally {
+        setEnumsLoading(false);
+      }
+    };
+
+    cargarEnums();
+  }, []);
   return (
     <div className="formulario-campos">
 
@@ -48,17 +75,16 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
       <div></div>
 
       <div className="form-group">
-        <label htmlFor="sexoRL">Sexo:</label>
-        <select
+        <label htmlFor="sexoRL">Sexo:</label>        <select
           id="sexoRL"
           name="sexo"
           value={formData.sexo || ''}
           onChange={(e) => onFormDataChange('sexo', e.target.value)}
           required
-          disabled={isLoading}
+          disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione sexo</option>
-          {SEXOS.map((s) => (
+          {sexos.map((s) => (
             <option key={`sexo-rl-${s}`} value={s}>
               {s}
             </option>
@@ -68,17 +94,16 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
 
       <div></div>
       <div className="form-group">
-        <label htmlFor="tipoDocumentoRL">Tipo de Documento:</label>
-        <select
+        <label htmlFor="tipoDocumentoRL">Tipo de Documento:</label>        <select
           id="tipoDocumentoRL"
           name="tipoDocumento"
           value={formData.tipoDocumento || ''}
           onChange={(e) => onFormDataChange('tipoDocumento', e.target.value)}
           required
-          disabled={isLoading}
+          disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione tipo de documento</option>
-          {listaDeTiposDocumentoPermitidos.map((tipo) => (
+          {tiposDocumento.map((tipo) => (
             <option key={`doc-rl-${tipo}`} value={tipo}>
               {tipo}
             </option>
@@ -158,16 +183,15 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
 
       {/* Modalidad */}
       <div className="form-group">
-        <label htmlFor="modalidad">Modalidad:</label>
-        <select
+        <label htmlFor="modalidad">Modalidad:</label>        <select
           id="modalidad"
           name="modalidad"
           value={formData.modalidad || ''}
           onChange={(e) => onFormDataChange('modalidad', e.target.value)}
-          disabled={isLoading}
+          disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione Modalidad</option>
-          {MODALIDAD.map((s) => (
+          {modalidades.map((s) => (
             <option key={`Modalidad-${s}`} value={s}>
               {s}
             </option>

@@ -1,32 +1,27 @@
 /**
- * Este módulo obtiene y exporta la lista de tipos de relación permitidos desde la base de datos Supabase.
- * Utiliza top-level await para realizar la consulta de manera síncrona al cargar el módulo.
+ * Este módulo exporta una función para obtener los tipos de relación permitidos.
+ * Utiliza el servicio EnumService para cargar datos asincrónicamente sin bloquear
+ * la carga del módulo.
  *
- * NOTA: Este enfoque bloquea la carga del módulo hasta que la consulta a la base de datos finalice.
- * Es adecuado para proyectos pequeños, prototipos o trabajos académicos donde la simplicidad es prioritaria.
- *
- * La lista exportada es un array inmutable (Object.freeze) de strings, por ejemplo:
+ * La función exportada retorna una Promise que resuelve a un array inmutable de strings:
  *   ['PADRE', 'MADRE', 'TUTOR', ...]
  *
- * Si ocurre un error en la consulta, se lanzará una excepción y la aplicación no continuará cargando.
+ * En caso de error en la conexión, retorna valores por defecto para mantener
+ * la funcionalidad de la aplicación.
  */
 
-import supabase from '../../config/ClienteSupabase';
+import enumService from '../../servicios/EnumService.js';
 
-// Variable para almacenar la lista de tipos de relación permitidos
-let listaDeTiposRelacionPermitidos = null;
-
-// Consulta a la base de datos para obtener los tipos de relación
-if (!listaDeTiposRelacionPermitidos) {
-  const { data, error } = await supabase
-    .from('TipoRelacion')
-    .select('valor');
-  if (error) throw new Error(error.message);
-  // Se crea un array inmutable solo con los valores no vacíos y sin espacios
-  listaDeTiposRelacionPermitidos = Object.freeze(
-    (data || []).map(r => r.valor.trim()).filter(Boolean)
-  );
+/**
+ * Obtiene la lista de tipos de relación permitidos
+ * @returns {Promise<string[]>} Array inmutable de tipos de relación
+ */
+export async function getTiposRelacion() {
+  return await enumService.getTiposRelacion();
 }
 
-// Exporta la lista de tipos de relación para ser usada en otros módulos
-export default listaDeTiposRelacionPermitidos;
+// Valores por defecto para compatibilidad con código existente
+export const defaultValues = ['PADRE', 'MADRE', 'TUTOR', 'ABUELO', 'HERMANO'];
+
+// Exportación por defecto para compatibilidad con importaciones existentes
+export default getTiposRelacion;

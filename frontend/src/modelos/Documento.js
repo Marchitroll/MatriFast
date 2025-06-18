@@ -3,7 +3,7 @@ import ValidadorCE from './Validadores/ValidadorCE';
 import ValidadorPTP from './Validadores/ValidadorPTP';
 import ValidadorCodigoEstudiante from './Validadores/ValidadorCodigoEstudiante';
 import ValidadorGenerico from './Validadores/ValidadorGenerico';
-import TIPOS_DOCUMENTO from './enums/TiposDocumento';
+import { getTiposDocumento, defaultValues as tiposDocumentoDefault } from './enums/TiposDocumento.js';
 
 class Documento {
     #tipo;
@@ -21,10 +21,9 @@ class Documento {
     constructor(tipo, numero) {
         if (tipo == null) throw new Error("El tipo de documento no puede ser nulo o indefinido");
         if (typeof tipo !== 'string') throw new Error("El tipo de documento debe ser una cadena de texto");
-        const t = tipo.trim().toUpperCase();
-        // La validación ahora usará el nuevo getTiposDocumento basado en el enum
-        if (!Documento.getTiposDocumento().includes(t)) {
-            throw new Error(`Tipo de documento inválido: "${tipo}"`);
+        const t = tipo.trim().toUpperCase();        // La validación básica usa valores por defecto
+        if (!tiposDocumentoDefault.includes(t)) {
+            console.warn(`El tipo de documento "${tipo}" podría no ser válido. Se recomienda usar validateTipoDocumento() para validación completa.`);
         }
         if (numero == null) throw new Error("El número de documento no puede ser nulo o indefinido");
         
@@ -42,10 +41,9 @@ class Documento {
     set tipo(valor) {
         if (valor == null) throw new Error("El tipo de documento no puede ser nulo o indefinido");
         if (typeof valor !== 'string') throw new Error("El tipo de documento debe ser una cadena de texto");
-        const t = valor.trim().toUpperCase();
-        // La validación ahora usará el nuevo getTiposDocumento basado en el enum
-        if (!Documento.getTiposDocumento().includes(t)) {
-            throw new Error(`Tipo de documento inválido: "${valor}"`);
+        const t = valor.trim().toUpperCase();        // La validación básica usa valores por defecto
+        if (!tiposDocumentoDefault.includes(t)) {
+            console.warn(`El tipo de documento "${valor}" podría no ser válido. Se recomienda usar validateTipoDocumento() para validación completa.`);
         }
 
         // 1) Validar *antes* de mutar el estado
@@ -112,13 +110,38 @@ class Documento {
             tipo: this.#tipo,
             numero: this.#numero
         };
-    }
-    /**
+    }    /**
      * Devuelve los tipos de documento soportados desde el enum.
-     * @returns {string[]}
+     * @returns {Promise<string[]>}
      */
-    static getTiposDocumento() {
-        return Object.values(TIPOS_DOCUMENTO);
+    static async getTiposDocumento() {
+        try {
+            return await getTiposDocumento();
+        } catch (error) {
+            console.warn('Error al cargar tipos de documento, usando valores por defecto:', error);
+            return tiposDocumentoDefault;
+        }
+    }
+
+    /**
+     * Valida el tipo de documento de forma asíncrona contra la base de datos
+     * @param {string} tipo - Tipo de documento a validar
+     * @returns {Promise<boolean>} - true si es válido, false en caso contrario
+     */
+    static async validateTipoDocumento(tipo) {
+        if (!tipo || typeof tipo !== 'string') {
+            return false;
+        }
+        
+        const tipoNormalizado = tipo.trim().toUpperCase();
+        
+        try {
+            const tiposPermitidos = await getTiposDocumento();
+            return tiposPermitidos.includes(tipoNormalizado);
+        } catch (error) {
+            console.warn('Error al validar tipo de documento:', error);
+            return tiposDocumentoDefault.includes(tipoNormalizado);
+        }
     }
 }
 

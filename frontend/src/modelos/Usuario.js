@@ -1,5 +1,5 @@
 import Persona from './Persona';
-import listaDeRolesPermitidos from './enums/RolesUsuario';
+import { getRolesUsuario, defaultValues as rolesUsuarioDefault } from './enums/RolesUsuario.js';
 
 // --- Clase Usuario ---
 
@@ -12,11 +12,9 @@ class Usuario extends Persona {
 
         if (new.target === Usuario) {
             throw new TypeError("No se puede instanciar la clase abstracta Usuario directamente.");
-        }
-
-        // Si no hay roles disponibles, lanzar un error
-        if (!listaDeRolesPermitidos || !Array.isArray(listaDeRolesPermitidos) || listaDeRolesPermitidos.length === 0)
-            throw new Error("La lista de roles permitidos no está disponible o está vacía.");
+        }        // Si no hay roles por defecto disponibles, lanzar un error
+        if (!rolesUsuarioDefault || !Array.isArray(rolesUsuarioDefault) || rolesUsuarioDefault.length === 0)
+            throw new Error("La lista de roles por defecto no está disponible o está vacía.");
 
         this.#email = Usuario.#validarEmail(email);
         this.#rol = this.#validarRolInterno(rol);
@@ -76,9 +74,7 @@ class Usuario extends Persona {
         }
         
         return emailNormalizado;
-    }
-
-    /**
+    }    /**
      * Valida si el rol proporcionado es válido comparándolo con la lista de roles permitidos.
      * @private
      * @param {string} rol - El rol que se desea validar.
@@ -94,11 +90,33 @@ class Usuario extends Persona {
         }
         
         const rolNormalizado = rol.trim().toUpperCase();
-        if (!listaDeRolesPermitidos.includes(rolNormalizado)) {
-            throw new TypeError(`El rol "${rol}" no es válido. Roles permitidos: ${listaDeRolesPermitidos.join(', ')}`);
+        // Validación básica usando valores por defecto
+        if (!rolesUsuarioDefault.includes(rolNormalizado)) {
+            console.warn(`El rol "${rol}" podría no ser válido. Se recomienda usar validateRol() para validación completa.`);
         }
         
         return rolNormalizado;
+    }
+
+    /**
+     * Valida el rol de forma asíncrona contra la base de datos
+     * @param {string} rol - Rol a validar
+     * @returns {Promise<boolean>} - true si es válido, false en caso contrario
+     */
+    async validateRol(rol) {
+        if (!rol || typeof rol !== 'string') {
+            return false;
+        }
+        
+        const rolNormalizado = rol.trim().toUpperCase();
+        
+        try {
+            const rolesPermitidos = await getRolesUsuario();
+            return rolesPermitidos.includes(rolNormalizado);
+        } catch (error) {
+            console.warn('Error al validar rol:', error);
+            return rolesUsuarioDefault.includes(rolNormalizado);
+        }
     }
 }
 export default Usuario;

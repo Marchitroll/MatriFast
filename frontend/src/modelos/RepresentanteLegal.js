@@ -1,6 +1,6 @@
 import Usuario from './Usuario';
 import Ubicacion from './Ubicacion';
-import listaDeTiposRelacionPermitidos from './enums/TiposRelacion';
+import { getTiposRelacion, defaultValues as tiposRelacionDefault } from './enums/TiposRelacion.js';
 import Estudiante from './Estudiante';
 
 class RepresentanteLegal extends Usuario {
@@ -23,19 +23,39 @@ class RepresentanteLegal extends Usuario {
 
   get tipoRelacion() {
     return this.#tipoRelacion;
-  }
-
-  set tipoRelacion(valor) {
+  }  set tipoRelacion(valor) {
     if (!valor || typeof valor !== 'string') {
       throw new TypeError('El tipo de relación debe ser una cadena no vacía.');
     }
     
     const tipoNormalizado = valor.trim().toUpperCase();
-    if (!listaDeTiposRelacionPermitidos.includes(tipoNormalizado)) {
-      throw new TypeError(`El tipo de relación "${valor}" no es válido. Valores permitidos: ${listaDeTiposRelacionPermitidos.join(', ')}`);
+    // Validación básica usando valores por defecto
+    if (!tiposRelacionDefault.includes(tipoNormalizado)) {
+      console.warn(`El tipo de relación "${valor}" podría no ser válido. Se recomienda usar validateTipoRelacion() para validación completa.`);
     }
     
     this.#tipoRelacion = tipoNormalizado;
+  }
+
+  /**
+   * Valida el tipo de relación de forma asíncrona contra la base de datos
+   * @param {string} valor - Tipo de relación a validar
+   * @returns {Promise<boolean>} - true si es válido, false en caso contrario
+   */
+  async validateTipoRelacion(valor) {
+    if (!valor || typeof valor !== 'string') {
+      return false;
+    }
+    
+    const tipoNormalizado = valor.trim().toUpperCase();
+    
+    try {
+      const tiposPermitidos = await getTiposRelacion();
+      return tiposPermitidos.includes(tipoNormalizado);
+    } catch (error) {
+      console.warn('Error al validar tipo de relación:', error);
+      return tiposRelacionDefault.includes(tipoNormalizado);
+    }
   }
 
   get direccion() {

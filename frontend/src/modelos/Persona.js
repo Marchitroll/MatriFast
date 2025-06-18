@@ -1,5 +1,5 @@
 import Documento from './Documento';
-import SEXOS from './enums/Sexos';
+import { getSexos, defaultValues as sexosDefault } from './enums/Sexos.js';
 
 class Persona {
     #id;
@@ -72,14 +72,28 @@ class Persona {
         }
         // Almacenar como objeto Date para consistencia
         this.#fechaNacimiento = fecha; 
-    }
-
-    get sexo() { return this.#sexo; }
+    }    get sexo() { return this.#sexo; }
     set sexo(valor) { 
-        if (!Object.values(SEXOS).includes(valor)) {
-            throw new TypeError(`El valor de sexo debe ser uno de: ${Object.values(SEXOS).join(', ')}`);
+        // Validación básica usando valores por defecto
+        if (!sexosDefault.includes(valor)) {
+            console.warn(`El valor de sexo "${valor}" podría no ser válido. Se recomienda usar validateSexo() para validación completa.`);
         }
         this.#sexo = valor; 
+    }
+
+    /**
+     * Valida el sexo de forma asíncrona contra la base de datos
+     * @param {string} sexo - Sexo a validar
+     * @returns {Promise<boolean>} - true si es válido, false en caso contrario
+     */
+    async validateSexo(sexo) {
+        try {
+            const sexosPermitidos = await getSexos();
+            return sexosPermitidos.includes(sexo);
+        } catch (error) {
+            console.warn('Error al validar sexo:', error);
+            return sexosDefault.includes(sexo);
+        }
     }
 
     get documento() { return this.#documento; }

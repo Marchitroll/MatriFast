@@ -1,32 +1,27 @@
 /**
- * Este módulo obtiene y exporta la lista de roles permitidos desde la base de datos Supabase.
- * Utiliza top-level await para realizar la consulta de manera síncrona al cargar el módulo.
+ * Este módulo exporta una función para obtener los roles de usuario permitidos.
+ * Utiliza el servicio EnumService para cargar datos asincrónicamente sin bloquear
+ * la carga del módulo.
  *
- * NOTA: Este enfoque bloquea la carga del módulo hasta que la consulta a la base de datos finalice.
- * Es adecuado para proyectos pequeños, prototipos o trabajos académicos donde la simplicidad es prioritaria.
- *
- * La lista exportada es un array inmutable (Object.freeze) de strings, por ejemplo:
+ * La función exportada retorna una Promise que resuelve a un array inmutable de strings:
  *   ['Docente', 'Representante legal', ...]
  *
- * Si ocurre un error en la consulta, se lanzará una excepción y la aplicación no continuará cargando.
+ * En caso de error en la conexión, retorna valores por defecto para mantener
+ * la funcionalidad de la aplicación.
  */
 
-import supabase from '../../config/ClienteSupabase';
+import enumService from '../../servicios/EnumService.js';
 
-// Variable para almacenar la lista de roles permitidos
-let listaDeRolesPermitidos = null;
-
-// Consulta a la base de datos para obtener los roles
-if (!listaDeRolesPermitidos) {
-  const { data, error } = await supabase
-    .from('Rol')
-    .select('valor');
-  if (error) throw new Error(error.message);
-  // Se crea un array inmutable solo con los valores no vacíos y sin espacios
-  listaDeRolesPermitidos = Object.freeze(
-    (data || []).map(r => r.valor.trim()).filter(Boolean)
-  );
+/**
+ * Obtiene la lista de roles de usuario permitidos
+ * @returns {Promise<string[]>} Array inmutable de roles de usuario
+ */
+export async function getRolesUsuario() {
+  return await enumService.getRolesUsuario();
 }
 
-// Exporta la lista de roles para ser usada en otros módulos
-export default listaDeRolesPermitidos;
+// Valores por defecto para compatibilidad con código existente
+export const defaultValues = ['Docente', 'Representante legal'];
+
+// Exportación por defecto para compatibilidad con importaciones existentes
+export default getRolesUsuario;

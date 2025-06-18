@@ -1,10 +1,38 @@
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import AuthFormField from './AuthFormField';
-import listaDeTiposDocumentoPermitidos from '../modelos/enums/TiposDocumento';
-import SEXOS from '../modelos/enums/Sexos';
-import listaDeTiposRelacionPermitidos from '../modelos/enums/TiposRelacion';
+import { getTiposDocumento, defaultValues as tiposDocumentoDefault } from '../modelos/enums/TiposDocumento.js';
+import { getSexos, defaultValues as sexosDefault } from '../modelos/enums/Sexos.js';
+import { getTiposRelacion, defaultValues as tiposRelacionDefault } from '../modelos/enums/TiposRelacion.js';
 
 function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
+  const [tiposDocumento, setTiposDocumento] = useState(tiposDocumentoDefault);
+  const [sexos, setSexos] = useState(sexosDefault);
+  const [tiposRelacion, setTiposRelacion] = useState(tiposRelacionDefault);
+  const [enumsLoading, setEnumsLoading] = useState(true);
+
+  useEffect(() => {
+    const cargarEnums = async () => {
+      try {
+        const [tiposDoc, sexosData, tiposRel] = await Promise.all([
+          getTiposDocumento(),
+          getSexos(),
+          getTiposRelacion()
+        ]);
+        
+        setTiposDocumento(tiposDoc);
+        setSexos(sexosData);
+        setTiposRelacion(tiposRel);
+      } catch (error) {
+        console.warn('Error cargando enumeraciones, usando valores por defecto:', error);
+      } finally {
+        setEnumsLoading(false);
+      }
+    };
+
+    cargarEnums();
+  }, []);
+
   const handleCheckboxChange = (field) => {
     onFormDataChange(field, !formData[field]);
   };
@@ -48,17 +76,16 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
         disabled={isLoading}
       />
       <div className="form-group">
-        <label htmlFor="sexoRL">Sexo:</label>
-        <select
+        <label htmlFor="sexoRL">Sexo:</label>        <select
           id="sexoRL"
           name="sexo"
           value={formData.sexo || ''}
           onChange={(e) => onFormDataChange('sexo', e.target.value)}
           required
-          disabled={isLoading}
+          disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione sexo</option>
-          {SEXOS.map((s) => (
+          {sexos.map((s) => (
             <option key={`sexo-rl-${s}`} value={s}>
               {s}
             </option>
@@ -68,17 +95,16 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
 
       {/* Documento */}
       <div className="form-group">
-        <label htmlFor="tipoDocumentoRL">Tipo de Documento:</label>
-        <select
+        <label htmlFor="tipoDocumentoRL">Tipo de Documento:</label>        <select
           id="tipoDocumentoRL"
           name="tipoDocumento"
           value={formData.tipoDocumento || ''}
           onChange={(e) => onFormDataChange('tipoDocumento', e.target.value)}
           required
-          disabled={isLoading}
+          disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione tipo de documento</option>
-          {listaDeTiposDocumentoPermitidos.map((tipo) => (
+          {tiposDocumento.map((tipo) => (
             <option key={`doc-rl-${tipo}`} value={tipo}>
               {tipo}
             </option>
@@ -98,17 +124,16 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
 
       {/* Datos Específicos de RepresentanteLegal */}
       <div className="form-group">
-        <label htmlFor="tipoRelacion">Tipo de Relación:</label>
-        <select
+        <label htmlFor="tipoRelacion">Tipo de Relación:</label>        <select
           id="tipoRelacion"
           name="tipoRelacion"
           value={formData.tipoRelacion || ''}
           onChange={(e) => onFormDataChange('tipoRelacion', e.target.value)}
           required
-          disabled={isLoading}
+          disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione tipo de relación</option>
-          {listaDeTiposRelacionPermitidos.map((tipo) => (
+          {tiposRelacion.map((tipo) => (
             <option key={tipo} value={tipo}>
               {tipo}
             </option>

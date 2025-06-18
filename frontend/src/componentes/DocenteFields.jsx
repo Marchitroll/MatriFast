@@ -1,9 +1,33 @@
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import AuthFormField from './AuthFormField';
-import listaDeTiposDocumentoPermitidos from '../modelos/enums/TiposDocumento';
-import SEXOS from '../modelos/enums/Sexos';
+import { getTiposDocumento, defaultValues as tiposDocumentoDefault } from '../modelos/enums/TiposDocumento.js';
+import { getSexos, defaultValues as sexosDefault } from '../modelos/enums/Sexos.js';
 
 function DocenteFields({ formData, onFormDataChange, isLoading }) {
+  const [tiposDocumento, setTiposDocumento] = useState(tiposDocumentoDefault);
+  const [sexos, setSexos] = useState(sexosDefault);
+  const [enumsLoading, setEnumsLoading] = useState(true);
+
+  useEffect(() => {
+    const cargarEnums = async () => {
+      try {
+        const [tiposDoc, sexosData] = await Promise.all([
+          getTiposDocumento(),
+          getSexos()
+        ]);
+        
+        setTiposDocumento(tiposDoc);
+        setSexos(sexosData);
+      } catch (error) {
+        console.warn('Error cargando enumeraciones, usando valores por defecto:', error);
+      } finally {
+        setEnumsLoading(false);
+      }
+    };
+
+    cargarEnums();
+  }, []);
   return (
     <>
       {/* Datos de Persona */}
@@ -44,16 +68,15 @@ function DocenteFields({ formData, onFormDataChange, isLoading }) {
         disabled={isLoading}
       />
       <div className="form-group">
-        <label htmlFor="sexo">Sexo:</label>
-        <select
+        <label htmlFor="sexo">Sexo:</label>        <select
           id="sexo"
           value={formData.sexo || ''}
           onChange={(e) => onFormDataChange('sexo', e.target.value)}
           required
-          disabled={isLoading}
+          disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione sexo</option>
-          {SEXOS.map((s) => (
+          {sexos.map((s) => (
             <option key={s} value={s}>
               {s}
             </option>
@@ -62,16 +85,15 @@ function DocenteFields({ formData, onFormDataChange, isLoading }) {
       </div>
       {/* Documento */}
       <div className="form-group">
-        <label htmlFor="tipoDocumento">Tipo de Documento:</label>
-        <select
+        <label htmlFor="tipoDocumento">Tipo de Documento:</label>        <select
           id="tipoDocumento"
           value={formData.tipoDocumento || ''}
           onChange={(e) => onFormDataChange('tipoDocumento', e.target.value)}
           required
-          disabled={isLoading}
+          disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione tipo de documento</option>
-          {listaDeTiposDocumentoPermitidos.map((tipo) => (
+          {tiposDocumento.map((tipo) => (
             <option key={tipo} value={tipo}>
               {tipo}
             </option>
