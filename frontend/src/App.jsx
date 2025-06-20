@@ -18,15 +18,13 @@ export default function App() {
         });
     }, []);
     return (
-        <BrowserRouter>
-            <nav>
+        <BrowserRouter>            <nav>
                 <h1>Matrifast</h1>
                 <Link to="/">Inicio</Link>
                 <Link to="/login">Iniciar Sesión</Link>
                 <Link to="/register">Registrar</Link>
                 <Link to="/formulario">Matrícula</Link>
-            </nav>
-            <Routes>
+            </nav><Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />

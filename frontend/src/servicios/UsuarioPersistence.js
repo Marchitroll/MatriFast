@@ -144,16 +144,158 @@ class UsuarioPersistence extends IUsuarioPersistence {
    * @param {object} representanteLegal - Objeto representante legal
    * @param {object} objetos - Objetos adicionales (ubicacion, perfilLinguistico)
    * @returns {Promise<object>} Resultado de la operación
-   */
-  async persistirRepresentanteLegal(representanteLegal, objetos) {
-    // Implementación de la persistencia del representante legal
-    // Similar a persistirDocente pero adaptado a RepresentanteLegal
-    logger.info('La persistencia de Representante Legal será implementada en futuras versiones');
-    return { 
-      success: false,
-      error: 'Persistencia de representante legal no implementada todavía' 
-    };
-  }  /**
+   */  async persistirRepresentanteLegal(representanteLegal, objetos) {
+    try {
+      logger.info('Iniciando persistencia de representante legal');
+
+      // 1. Obtener ID del sexo
+      const { data: sexoData, error: sexoError } = await this.supabase
+        .from('Sexo')
+        .select('id')
+        .eq('valor', representanteLegal.sexo)
+        .single();
+
+      if (sexoError || !sexoData) {
+        logger.error('Error al obtener sexo:', sexoError);
+        return { success: false, error: 'Sexo no encontrado en la base de datos' };
+      }
+      const idSexo = sexoData.id;
+
+      // 2. Obtener ID del tipo de documento
+      const { data: tipoDocData, error: tipoDocError } = await this.supabase
+        .from('TipoDocumento')
+        .select('id')
+        .eq('valor', representanteLegal.documento.tipo)
+        .single();
+
+      if (tipoDocError || !tipoDocData) {
+        logger.error('Error al obtener tipo de documento:', tipoDocError);
+        return { success: false, error: 'Tipo de documento no encontrado' };
+      }
+      const idTipoDocumento = tipoDocData.id;
+
+      // 3. Obtener ID del tipo de relación
+      const { data: tipoRelacionData, error: tipoRelacionError } = await this.supabase
+        .from('TipoRelacion')
+        .select('id')
+        .eq('valor', representanteLegal.tipoRelacion)
+        .single();
+
+      if (tipoRelacionError || !tipoRelacionData) {
+        logger.error('Error al obtener tipo de relación:', tipoRelacionError);
+        return { success: false, error: 'Tipo de relación no encontrado' };
+      }
+      const idTipoRelacion = tipoRelacionData.id;
+
+      // 4. Insertar ubicación (dirección) en tabla separada
+      const ubicacionData = {
+        direccion: representanteLegal.direccion.direccion
+      };
+
+      const { data: ubicacionInserted, error: ubicacionError } = await this.supabase
+        .from('Ubicacion')
+        .insert(ubicacionData)
+        .select()
+        .single();
+
+      if (ubicacionError || !ubicacionInserted) {
+        logger.error('Error al insertar ubicación:', ubicacionError);
+        return { success: false, error: 'Error al crear ubicación en la base de datos' };
+      }
+      const idDireccion = ubicacionInserted.id;
+
+      // 5. Insertar persona
+      const personaData = {
+        nombres: representanteLegal.nombres,
+        aPaterno: representanteLegal.aPaterno,
+        aMaterno: representanteLegal.aMaterno || null,
+        idSexo: idSexo,
+        fechaNacimiento: new Date(representanteLegal.fechaNacimiento).toISOString().split('T')[0], 
+        idDocumento: idTipoDocumento,
+        nroDocumento: representanteLegal.documento.numero
+      };
+
+      const { data: personaInserted, error: personaError } = await this.supabase
+        .from('Persona')
+        .insert(personaData)
+        .select()
+        .single();
+
+      if (personaError || !personaInserted) {
+        logger.error('Error al insertar persona:', personaError);
+        return { success: false, error: 'Error al crear persona en la base de datos' };
+      }
+      const idPersona = personaInserted.id;
+
+      // 6. Obtener ID del rol "REPRESENTANTE LEGAL"
+      const { data: rolData, error: rolError } = await this.supabase
+        .from('Rol')
+        .select('id')
+        .eq('valor', 'REPRESENTANTE LEGAL')
+        .single();
+
+      if (rolError || !rolData) {
+        logger.error('Error al obtener rol:', rolError);
+        return { success: false, error: 'Rol de representante legal no encontrado' };
+      }
+      const idRol = rolData.id;
+
+      // 7. Insertar usuario
+      const usuarioData = {
+        idPersona: idPersona,
+        email: representanteLegal.email,
+        idRol: idRol
+      };
+
+      const { data: usuarioInserted, error: usuarioError } = await this.supabase
+        .from('Usuario')
+        .insert(usuarioData)
+        .select()
+        .single();
+
+      if (usuarioError || !usuarioInserted) {
+        logger.error('Error al insertar usuario:', usuarioError);
+        return { success: false, error: 'Error al crear usuario en la base de datos' };
+      }
+      const idUsuario = usuarioInserted.id;
+
+      // 8. Insertar representante legal específico con referencias a IDs
+      const representanteLegalData = {
+        idUsuario: idUsuario,
+        idRelacion: idTipoRelacion,
+        idDireccion: idDireccion,
+        celular: representanteLegal.numeroCelular,
+        viveConEstudiante: representanteLegal.viveConEstudiante,
+        idEstudiante: null // Por ahora null, se asignará cuando se relacione con un estudiante
+      };
+
+      const { data: rlInserted, error: rlError } = await this.supabase
+        .from('RepresentanteLegal')
+        .insert(representanteLegalData)
+        .select()
+        .single();
+
+      if (rlError || !rlInserted) {
+        logger.error('Error al insertar representante legal:', rlError);        return { success: false, error: 'Error al crear datos específicos del representante legal' };
+      }
+
+      // El ID se maneja únicamente en la base de datos, no se asigna al objeto frontend
+      logger.info(`Representante legal persistido exitosamente con ID: ${idUsuario}`);
+      return { 
+        success: true, 
+        data: { 
+          id: idUsuario,
+          idPersona: idPersona,
+          idRepresentanteLegal: rlInserted.id,
+          idDireccion: idDireccion
+        } 
+      };
+
+    } catch (error) {
+      logger.error('Error inesperado al persistir representante legal:', error);
+      return { success: false, error: `Error inesperado: ${error.message}` };
+    }
+  }/**
  * Persiste los datos del estudiante junto con objetos relacionados
  * @param {object} estudiante - Objeto estudiante a persistir
  * @param {object} objetos - Objetos adicionales relacionados (lugarNacimiento, domicilioActual, representanteLegalInscriptor)
