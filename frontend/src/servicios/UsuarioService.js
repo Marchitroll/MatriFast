@@ -120,6 +120,32 @@ class UsuarioService {
         return { success: false, error: `Rol no soportado: ${role}` };
     }
   }
+
+  /**
+ * Actualiza los datos del usuario en Supabase según el rol
+ * @param {string} role Rol del usuario
+ * @param {object} datosActualizados Datos actualizados
+ * @returns {Promise<object>} Resultado de la actualización
+ */
+async actualizarUsuario(role, datosActualizados) {
+  try {
+    switch (role) {
+      case 'DOCENTE':
+        return await this.persistence.actualizarDocente(datosActualizados);
+
+      case 'REPRESENTANTE LEGAL':
+        return await this.persistence.actualizarRepresentanteLegal(datosActualizados);
+
+      default:
+        return { success: false, error: `Rol no soportado para edición: ${role}` };
+    }
+  } catch (error) {
+    logger.error('Error al actualizar usuario:', error);
+    return { success: false, error: 'Error al actualizar datos.' };
+  }
+}
+
+
 }
 
 // Exportar la clase para usarla en otros módulos

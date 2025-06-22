@@ -484,6 +484,201 @@ async persistirEstudiante(estudiante, objetos = {}) {
     }
   }
 
+  /**
+ * Actualiza los datos de un docente
+ * @param {object} docente Datos del docente actualizados
+ * @returns {Promise<object>}
+ */
+async actualizarDocente(docente) {
+  const { id, nombres, aPaterno, aMaterno, fechaNacimiento, nroDocumento, sexo, documento } = docente;
+
+  try {
+
+    if (!documento || !documento.tipo) {
+      return { success: false, error: 'Faltan datos del documento.' };
+    }
+
+    // 1. Obtener idPersona desde el idUsuario
+    const { data: usuarioData, error: usuarioError } = await this.supabase
+      .from('Usuario')
+      .select('idPersona')
+      .eq('id', id)
+      .single();
+
+    if (usuarioError || !usuarioData) {
+      logger.error('No se pudo obtener idPersona desde Usuario', usuarioError);
+      return { success: false, error: 'No se pudo obtener la persona asociada.' };
+    }
+
+    const idPersona = usuarioData.idPersona;
+
+    // 2. Obtener idSexo
+    const { data: sexoData, error: sexoError } = await this.supabase
+      .from('Sexo')
+      .select('id')
+      .eq('valor', sexo)
+      .single();
+
+    if (sexoError || !sexoData) {
+      return { success: false, error: 'Sexo no encontrado' };
+    }
+
+    // 3. Obtener idTipoDocumento
+    const { data: tipoDocData, error: tipoDocError } = await this.supabase
+      .from('TipoDocumento')
+      .select('id')
+      .eq('valor', documento.tipo)
+      .single();
+
+    if (tipoDocError || !tipoDocData) {
+      return { success: false, error: 'Tipo de documento no encontrado' };
+    }
+
+    // 4. Actualizar Persona
+    const updateData = {
+      nombres,
+      aPaterno,
+      aMaterno,
+      fechaNacimiento: new Date(fechaNacimiento).toISOString().split('T')[0],
+      nroDocumento: documento.numero,
+      idSexo: sexoData.id,
+      idDocumento: tipoDocData.id,
+    };
+
+    const { error: personaError } = await this.supabase
+      .from('Persona')
+      .update(updateData)
+      .eq('id', idPersona);
+
+    if (personaError) {
+      logger.error('Error al actualizar Persona', personaError);
+      return { success: false, error: 'Error al actualizar los datos personales.' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    logger.error('Error inesperado al actualizar docente:', error);
+    return { success: false, error: 'Error inesperado al actualizar.' };
+  }
+}
+
+/**
+ * Actualiza los datos de un representante legal
+ * @param {object} representante Datos actualizados
+ * @returns {Promise<object>}
+ */
+async actualizarRepresentanteLegal(representante) {
+  const {
+    id, // idUsuario
+    nombres,
+    aPaterno,
+    aMaterno,
+    fechaNacimiento,
+    nroDocumento,
+    sexo,
+    documento,
+    direccion,
+    celular,
+    viveConEstudiante
+  } = representante;
+
+  try {
+    // 1. Obtener idPersona desde Usuario
+    const { data: usuarioData, error: usuarioError } = await this.supabase
+      .from('Usuario')
+      .select('idPersona')
+      .eq('id', id)
+      .single();
+
+    if (usuarioError || !usuarioData) {
+      logger.error('No se pudo obtener idPersona desde Usuario', usuarioError);
+      return { success: false, error: 'No se encontró la persona asociada a este usuario.' };
+    }
+
+    const idPersona = usuarioData.idPersona;
+
+    // 2. Obtener idSexo
+    const { data: sexoData, error: sexoError } = await this.supabase
+      .from('Sexo')
+      .select('id')
+      .eq('valor', sexo)
+      .single();
+
+    if (sexoError || !sexoData) {
+      return { success: false, error: 'Sexo no encontrado' };
+    }
+
+    // 3. Obtener idTipoDocumento
+    const { data: tipoDocData, error: tipoDocError } = await this.supabase
+      .from('TipoDocumento')
+      .select('id')
+      .eq('valor', documento.tipo)
+      .single();
+
+    if (tipoDocError || !tipoDocData) {
+      return { success: false, error: 'Tipo de documento no encontrado' };
+    }
+
+    // 4. Actualizar tabla Persona
+    const personaData = {
+      nombres,
+      aPaterno,
+      aMaterno,
+      fechaNacimiento: new Date(fechaNacimiento).toISOString().split('T')[0],
+      nroDocumento,
+      idSexo: sexoData.id,
+      idDocumento: tipoDocData.id
+    };
+
+    const { error: personaError } = await this.supabase
+      .from('Persona')
+      .update(personaData)
+      .eq('id', idPersona);
+
+    if (personaError) {
+      logger.error('Error al actualizar Persona', personaError);
+      return { success: false, error: 'No se pudo actualizar los datos personales.' };
+    }
+
+    // 5. Actualizar tabla RepresentanteLegal (si hay celular o viveConEstudiante)
+    const representanteData = {};
+    if (celular !== undefined) representanteData.celular = celular;
+    if (viveConEstudiante !== undefined) representanteData.viveConEstudiante = viveConEstudiante;
+
+    if (Object.keys(representanteData).length > 0) {
+      const { error: rlError } = await this.supabase
+        .from('RepresentanteLegal')
+        .update(representanteData)
+        .eq('idUsuario', id);
+
+      if (rlError) {
+        logger.error('Error al actualizar RepresentanteLegal', rlError);
+        return { success: false, error: 'No se pudo actualizar los datos del representante legal.' };
+      }
+    }
+
+    // 6. Actualizar dirección si se provee
+    if (direccion?.id && direccion?.direccion) {
+      const { error: direccionError } = await this.supabase
+        .from('Ubicacion')
+        .update({ direccion: direccion.direccion })
+        .eq('id', direccion.id);
+
+      if (direccionError) {
+        logger.error('Error al actualizar dirección', direccionError);
+        return { success: false, error: 'No se pudo actualizar la dirección del representante legal.' };
+      }
+    }
+
+    return { success: true };
+
+  } catch (error) {
+    logger.error('Error inesperado al actualizar representante legal', error);
+    return { success: false, error: 'Error inesperado al actualizar los datos del representante legal.' };
+  }
+}
+
+
 }
 
 export default UsuarioPersistence;

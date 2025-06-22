@@ -7,6 +7,7 @@ import Login from "./paginas/Login";
 import Register from "./paginas/Register";
 import Formulario from "./paginas/Formulario";
 import Test from "./paginas/Test";
+import Perfil from './paginas/Perfil.jsx';
 
 export default function App() {
     useEffect(() => {
@@ -24,12 +25,14 @@ export default function App() {
                 <Link to="/login">Iniciar Sesión</Link>
                 <Link to="/register">Registrar</Link>
                 <Link to="/formulario">Matrícula</Link>
+                <Link to="/perfil">Editar Perfil</Link>
             </nav><Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/formulario" element={<Formulario />} />
                 <Route path="/test" element={<Test />} />
+                <Route path="/perfil" element={<Perfil />} />
                 <Route path="*" element={<h2>404 - Página no encontrada</h2>} />
             </Routes>
         </BrowserRouter>
