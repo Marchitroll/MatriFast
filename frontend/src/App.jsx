@@ -8,6 +8,7 @@ import Register from "./paginas/Register";
 import Formulario from "./paginas/Formulario";
 import Test from "./paginas/Test";
 import Perfil from './paginas/Perfil.jsx';
+import Chatbot from './componentes/Chatbot.jsx';
 
 export default function App() {
     useEffect(() => {
@@ -19,14 +20,16 @@ export default function App() {
         });
     }, []);
     return (
-        <BrowserRouter>            <nav>
+        <BrowserRouter>
+        <nav>
                 <h1>Matrifast</h1>
                 <Link to="/">Inicio</Link>
                 <Link to="/login">Iniciar Sesión</Link>
                 <Link to="/register">Registrar</Link>
                 <Link to="/formulario">Matrícula</Link>
                 <Link to="/perfil">Editar Perfil</Link>
-            </nav><Routes>
+                </nav>
+                <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -35,6 +38,7 @@ export default function App() {
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="*" element={<h2>404 - Página no encontrada</h2>} />
             </Routes>
+            <Chatbot />
         </BrowserRouter>
     )
 }
