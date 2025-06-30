@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
+import { HashRouter, Link, Routes, Route } from "react-router-dom";
 import enumService from './servicios/EnumService.js';
 
 import Home from "./paginas/Home";
@@ -20,8 +20,8 @@ export default function App() {
         });
     }, []);
     return (
-        <BrowserRouter>
-        <nav>
+        <HashRouter>
+         <nav>
                 <h1>Matrifast</h1>
                 <Link to="/">Inicio</Link>
                 <Link to="/login">Iniciar Sesión</Link>
@@ -39,6 +39,6 @@ export default function App() {
                 <Route path="*" element={<h2>404 - Página no encontrada</h2>} />
             </Routes>
             <Chatbot />
-        </BrowserRouter>
+        </HashRouter>
     )
 }
