@@ -490,8 +490,8 @@ async persistirEstudiante(estudiante, objetos = {}) {
  * @returns {Promise<object>}
  */
 async actualizarDocente(docente) {
-  const { id, nombres, aPaterno, aMaterno, fechaNacimiento, nroDocumento, sexo, documento } = docente;
-
+  const { id, nombres, aPaterno, aMaterno, fechaNacimiento, sexo, documento } = docente;
+  const nroDocumento = documento.numero;
   try {
 
     if (!documento || !documento.tipo) {
@@ -513,6 +513,8 @@ async actualizarDocente(docente) {
     const idPersona = usuarioData.idPersona;
 
     // 2. Obtener idSexo
+    let idSexo = null;
+    if (sexo) { 
     const { data: sexoData, error: sexoError } = await this.supabase
       .from('Sexo')
       .select('id')
@@ -522,8 +524,12 @@ async actualizarDocente(docente) {
     if (sexoError || !sexoData) {
       return { success: false, error: 'Sexo no encontrado' };
     }
+      idSexo = sexoData.id;
+    }
 
     // 3. Obtener idTipoDocumento
+    let idTipoDocumento = null;
+    if (documento && documento.tipo) {
     const { data: tipoDocData, error: tipoDocError } = await this.supabase
       .from('TipoDocumento')
       .select('id')
@@ -533,17 +539,20 @@ async actualizarDocente(docente) {
     if (tipoDocError || !tipoDocData) {
       return { success: false, error: 'Tipo de documento no encontrado' };
     }
+      idTipoDocumento = tipoDocData.id;
+    }
 
     // 4. Actualizar Persona
-    const updateData = {
-      nombres,
-      aPaterno,
-      aMaterno,
-      fechaNacimiento: new Date(fechaNacimiento).toISOString().split('T')[0],
-      nroDocumento: documento.numero,
-      idSexo: sexoData.id,
-      idDocumento: tipoDocData.id,
-    };
+    const updateData = {};
+if (nombres) updateData.nombres = nombres;
+if (aPaterno) updateData.aPaterno = aPaterno;
+if (aMaterno) updateData.aMaterno = aMaterno;
+if (fechaNacimiento) {
+  updateData.fechaNacimiento = new Date(fechaNacimiento).toISOString().split('T')[0];
+}
+if (documento?.numero) updateData.nroDocumento = documento.numero;
+if (idSexo) updateData.idSexo = idSexo;
+if (idTipoDocumento) updateData.idDocumento = idTipoDocumento;
 
     const { error: personaError } = await this.supabase
       .from('Persona')
@@ -574,13 +583,14 @@ async actualizarRepresentanteLegal(representante) {
     aPaterno,
     aMaterno,
     fechaNacimiento,
-    nroDocumento,
+
     sexo,
     documento,
     direccion,
     celular,
     viveConEstudiante
   } = representante;
+  const nroDocumento = documento.numero;
 
   try {
     // 1. Obtener idPersona desde Usuario
@@ -598,6 +608,8 @@ async actualizarRepresentanteLegal(representante) {
     const idPersona = usuarioData.idPersona;
 
     // 2. Obtener idSexo
+    let idSexo = null;
+    if (sexo) {
     const { data: sexoData, error: sexoError } = await this.supabase
       .from('Sexo')
       .select('id')
@@ -607,8 +619,12 @@ async actualizarRepresentanteLegal(representante) {
     if (sexoError || !sexoData) {
       return { success: false, error: 'Sexo no encontrado' };
     }
+    idSexo = sexoData.id;
+    }
 
     // 3. Obtener idTipoDocumento
+    let idTipoDocumento = null;
+    if (documento && documento.tipo) {
     const { data: tipoDocData, error: tipoDocError } = await this.supabase
       .from('TipoDocumento')
       .select('id')
@@ -618,17 +634,20 @@ async actualizarRepresentanteLegal(representante) {
     if (tipoDocError || !tipoDocData) {
       return { success: false, error: 'Tipo de documento no encontrado' };
     }
+      idTipoDocumento = tipoDocData.id;
+    }
 
     // 4. Actualizar tabla Persona
-    const personaData = {
-      nombres,
-      aPaterno,
-      aMaterno,
-      fechaNacimiento: new Date(fechaNacimiento).toISOString().split('T')[0],
-      nroDocumento,
-      idSexo: sexoData.id,
-      idDocumento: tipoDocData.id
-    };
+    const personaData = {};
+if (nombres) personaData.nombres = nombres;
+if (aPaterno) personaData.aPaterno = aPaterno;
+if (aMaterno) personaData.aMaterno = aMaterno;
+if (fechaNacimiento) {
+  personaData.fechaNacimiento = new Date(fechaNacimiento).toISOString().split('T')[0];
+}
+if (nroDocumento) personaData.nroDocumento = nroDocumento;
+if (idSexo) personaData.idSexo = idSexo;
+if (idTipoDocumento) personaData.idDocumento = idTipoDocumento;
 
     const { error: personaError } = await this.supabase
       .from('Persona')

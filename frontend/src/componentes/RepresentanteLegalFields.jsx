@@ -5,7 +5,7 @@ import { getTiposDocumento, defaultValues as tiposDocumentoDefault } from '../mo
 import { getSexos, defaultValues as sexosDefault } from '../modelos/enums/Sexos.js';
 import { getTiposRelacion, defaultValues as tiposRelacionDefault } from '../modelos/enums/TiposRelacion.js';
 
-function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
+function RepresentanteLegalFields({ formData, onFormDataChange, isLoading, isUpdate }) {
   const [tiposDocumento, setTiposDocumento] = useState(tiposDocumentoDefault);
   const [sexos, setSexos] = useState(sexosDefault);
   const [tiposRelacion, setTiposRelacion] = useState(tiposRelacionDefault);
@@ -46,7 +46,7 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
         id="nombresRL"
         value={formData.nombres || ''}
         onChange={(e) => onFormDataChange('nombres', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
       />
       <AuthFormField
@@ -55,7 +55,7 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
         id="aPaternoRL"
         value={formData.aPaterno || ''}
         onChange={(e) => onFormDataChange('aPaterno', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
       />
       <AuthFormField
@@ -72,7 +72,7 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
         id="fechaNacimientoRL"
         value={formData.fechaNacimiento || ''}
         onChange={(e) => onFormDataChange('fechaNacimiento', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
       />
       <div className="form-group">
@@ -81,7 +81,7 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
           name="sexo"
           value={formData.sexo || ''}
           onChange={(e) => onFormDataChange('sexo', e.target.value)}
-          required
+          required={!isUpdate}
           disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione sexo</option>
@@ -100,7 +100,7 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
           name="tipoDocumento"
           value={formData.tipoDocumento || ''}
           onChange={(e) => onFormDataChange('tipoDocumento', e.target.value)}
-          required
+          required={!isUpdate}
           disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione tipo de documento</option>
@@ -118,7 +118,7 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
         name="numeroDocumento"
         value={formData.numeroDocumento || ''}
         onChange={(e) => onFormDataChange('numeroDocumento', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
       />
 
@@ -129,7 +129,7 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
           name="tipoRelacion"
           value={formData.tipoRelacion || ''}
           onChange={(e) => onFormDataChange('tipoRelacion', e.target.value)}
-          required
+          required={!isUpdate}
           disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione tipo de relación</option>
@@ -148,7 +148,7 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
         name="numeroCelular"
         value={formData.numeroCelular || ''}
         onChange={(e) => onFormDataChange('numeroCelular', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
         pattern="^9\d{8}$"
         title="Debe ser un número de celular peruano válido (9 dígitos)."      />
@@ -161,7 +161,7 @@ function RepresentanteLegalFields({ formData, onFormDataChange, isLoading }) {
         name="direccion"
         value={formData.direccion || ''}
         onChange={(e) => onFormDataChange('direccion', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
       />
 
@@ -187,10 +187,12 @@ RepresentanteLegalFields.propTypes = {
   formData: PropTypes.object.isRequired,
   onFormDataChange: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
+  isUpdate: PropTypes.bool,
 };
 
 RepresentanteLegalFields.defaultProps = {
   isLoading: false,
+  isUpdate: false,
 };
 
 export default RepresentanteLegalFields;

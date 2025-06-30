@@ -108,7 +108,7 @@ const obtenerUsuarioActual = async () => {
       console.error('Error al cargar perfil Docente:', error);
       return null;
     }
-    return { ...docente, email, role };
+    return { ...docente, email, role, id: usuario.id };
   }
 
   if (role === 'REPRESENTANTE LEGAL') {
@@ -122,7 +122,7 @@ const obtenerUsuarioActual = async () => {
       console.error('Error al cargar perfil RepresentanteLegal:', error);
       return null;
     }
-    return { ...representante, email, role };
+    return { ...representante, email, role, id: usuario.id };
   }
 
   console.warn('Rol no contemplado en obtenerUsuarioActual:', role);

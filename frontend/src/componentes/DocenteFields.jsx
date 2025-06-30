@@ -4,7 +4,7 @@ import AuthFormField from './AuthFormField';
 import { getTiposDocumento, defaultValues as tiposDocumentoDefault } from '../modelos/enums/TiposDocumento.js';
 import { getSexos, defaultValues as sexosDefault } from '../modelos/enums/Sexos.js';
 
-function DocenteFields({ formData, onFormDataChange, isLoading }) {
+function DocenteFields({ formData, onFormDataChange, isLoading, isUpdate }) {
   const [tiposDocumento, setTiposDocumento] = useState(tiposDocumentoDefault);
   const [sexos, setSexos] = useState(sexosDefault);
   const [enumsLoading, setEnumsLoading] = useState(true);
@@ -37,7 +37,7 @@ function DocenteFields({ formData, onFormDataChange, isLoading }) {
         id="nombres"
         value={formData.nombres || ''}
         onChange={(e) => onFormDataChange('nombres', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
       />
       <AuthFormField
@@ -46,7 +46,7 @@ function DocenteFields({ formData, onFormDataChange, isLoading }) {
         id="aPaterno"
         value={formData.aPaterno || ''}
         onChange={(e) => onFormDataChange('aPaterno', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
       />
       <AuthFormField
@@ -55,7 +55,7 @@ function DocenteFields({ formData, onFormDataChange, isLoading }) {
         id="aMaterno"
         value={formData.aMaterno || ''}
         onChange={(e) => onFormDataChange('aMaterno', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
       />
       <AuthFormField
@@ -64,7 +64,7 @@ function DocenteFields({ formData, onFormDataChange, isLoading }) {
         id="fechaNacimiento"
         value={formData.fechaNacimiento || ''}
         onChange={(e) => onFormDataChange('fechaNacimiento', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
       />
       <div className="form-group">
@@ -72,7 +72,7 @@ function DocenteFields({ formData, onFormDataChange, isLoading }) {
           id="sexo"
           value={formData.sexo || ''}
           onChange={(e) => onFormDataChange('sexo', e.target.value)}
-          required
+          required={!isUpdate}
           disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione sexo</option>
@@ -89,7 +89,7 @@ function DocenteFields({ formData, onFormDataChange, isLoading }) {
           id="tipoDocumento"
           value={formData.tipoDocumento || ''}
           onChange={(e) => onFormDataChange('tipoDocumento', e.target.value)}
-          required
+          required={!isUpdate}
           disabled={isLoading || enumsLoading}
         >
           <option value="">Seleccione tipo de documento</option>
@@ -106,7 +106,7 @@ function DocenteFields({ formData, onFormDataChange, isLoading }) {
         id="numeroDocumento"
         value={formData.numeroDocumento || ''}
         onChange={(e) => onFormDataChange('numeroDocumento', e.target.value)}
-        required
+        required={!isUpdate}
         disabled={isLoading}
       />
     </>
@@ -117,10 +117,12 @@ DocenteFields.propTypes = {
   formData: PropTypes.object.isRequired,
   onFormDataChange: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
+  isUpdate: PropTypes.bool,
 };
 
 DocenteFields.defaultProps = {
   isLoading: false,
+  isUpdate: false,
 };
 
 export default DocenteFields;

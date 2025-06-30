@@ -89,10 +89,10 @@ function Perfil() {
         <form onSubmit={handleSubmit}>
           {/* Mostrar campos según rol */}
           {role === 'DOCENTE' && (
-            <DocenteFields formData={formData} onFormDataChange={handleChange} isLoading={isLoading} />
+            <DocenteFields formData={formData} onFormDataChange={handleChange} isLoading={isLoading} isUpdate={true} />
           )}
           {role === 'REPRESENTANTE LEGAL' && (
-            <RepresentanteLegalFields formData={formData} onFormDataChange={handleChange} isLoading={isLoading} />
+            <RepresentanteLegalFields formData={formData} onFormDataChange={handleChange} isLoading={isLoading} isUpdate={true} />
           )}
           <AuthSubmitButton isLoading={isLoading} loadingText="Guardando..." defaultText="Guardar Cambios" />
         </form>
