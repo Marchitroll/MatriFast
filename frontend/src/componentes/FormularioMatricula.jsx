@@ -236,22 +236,19 @@ function MatriculaFormulario({ formData, onFormDataChange, isLoading }) {
       </div>
 
       {/* Exoneración fisica */}
-      <div className="form-group">
-        <label htmlFor="exoneracion">Solicitud de Exoneración de Educación Fisica:</label>
-        <select
-          id="exoneracion"
-          name="exoneracion"
-          value={formData.exoneracion || ''}
-          onChange={(e) => onFormDataChange('exoneracion', e.target.value)}
+      <div className="form-group form-check">
+        <input
+          type="checkbox"
+          className="form-check-input"
+          id="exoneracionFisica"
+          name="exoneracionFisica"
+          checked={!!formData.exoneracionFisica}
+          onChange={(e) => onFormDataChange('exoneracionFisica', e.target.checked)}
           disabled={isLoading}
-        >
-          <option value="">Seleccione opción</option>
-          {/* {EXONERACION.map((s) => (
-            <option key={`exoneracion-${s}`} value={s}>
-              {s}
-            </option>
-          ))} */}
-        </select>
+        />
+        <label className="form-check-label" htmlFor="exoneracionFisica">
+          ¿Solicitud de Exoneración de Educación Fisica?
+        </label>
       </div>
 
     </div>
