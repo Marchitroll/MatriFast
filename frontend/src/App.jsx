@@ -21,15 +21,15 @@ export default function App() {
     }, []);
     return (
         <HashRouter>
-         <nav>
+            <nav>
                 <h1>Matrifast</h1>
                 <Link to="/">Inicio</Link>
                 <Link to="/login">Iniciar Sesión</Link>
                 <Link to="/register">Registrar</Link>
                 <Link to="/formulario">Matrícula</Link>
                 <Link to="/perfil">Editar Perfil</Link>
-                </nav>
-                <Routes>
+            </nav>
+            <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
