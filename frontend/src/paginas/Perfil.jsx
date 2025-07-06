@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../funcionalidad/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import DocenteFields from '../componentes/DocenteFields';
