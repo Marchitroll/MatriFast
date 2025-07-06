@@ -4,7 +4,7 @@ import { useAuth } from "../funcionalidad/AuthContext";
 import FormularioMatricula from '../componentes/FormularioMatricula';
 import AuthSubmitButton from '../componentes/AuthSubmitButton';
 import AuthPageLayout from '../componentes/AuthPageLayout';
-import { useMatriculaForm } from '../hooks/useMatriculaForm.js';
+import useMatriculaForm from '../hooks/useMatriculaForm';
 
 
 function Formulario() {
