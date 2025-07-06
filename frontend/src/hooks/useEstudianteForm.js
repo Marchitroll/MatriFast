@@ -1,61 +1,46 @@
 import { useState } from 'react';
-import { useAuth } from '../funcionalidad/AuthContext';
-import UsuarioService from '../servicios/UsuarioService';
+import usuarioService from '../servicios/UsuarioService';
 
-export function useEstudianteForm() {
-  const [formData, setFormData] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [registroCompleto, setRegistroCompleto] = useState(false);
+/**
+ * Hook para registrar un estudiante (sin crear cuenta Auth).
+ */
+export default function useEstudianteForm() {
+  const [estado, setEstado] = useState({ cargando: false, exito: false, error: null });
 
-  const usuarioService = new UsuarioService();
-  const { session } = useAuth();
-
-  const handleChange = (campo, valor) => {
-    setFormData(prev => ({ ...prev, [campo]: valor }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+  const handleSubmit = async (formData) => {
+    setEstado({ cargando: true, exito: false, error: null });
 
     try {
-      // 1. Email fijo y role ESTUDIANTE
-      const datosUsuario = {
-        email: 'estudiante@instituto.com',
-        role: 'ESTUDIANTE'
+      /* ── 1. Datos de Usuario (solo rol) ─────────────────────────── */
+      const datosUsuario = { role: 'ESTUDIANTE' };
+
+      /* ── 2. Datos de Estudiante ─────────────────────────────────── */
+      const {
+        nombres, aPaterno, aMaterno, fechaNacimiento, sexo,
+        tipoDocumento, numeroDocumento, lugarNacimiento, direccion,
+        tieneDispositivosElectronicos, tieneInternet, representanteLegalId,
+        nivel, grado, seccion, turno
+      } = formData;
+
+      const datosEstudiante = {
+        nombres, aPaterno, aMaterno, fechaNacimiento, sexo,
+        tipoDocumento, numeroDocumento, lugarNacimiento, direccion,
+        tieneDispositivosElectronicos, tieneInternet, representanteLegalId,
+        servicioEducativo: { nivel, grado, seccion, turno }
       };
 
-      // 2. Datos específicos son los del formulario
-      const datosEspecificos = { ...formData };
-
-      const resultado = await usuarioService.registrarUsuarioCompleto(
+      /* ── 3. Registrar en BD (sin Auth) ──────────────────────────── */
+      await usuarioService.registrarUsuarioCompleto(
         datosUsuario,
-        datosEspecificos
+        datosEstudiante,
+        { crearCuentaAuth: false }
       );
 
-      if (!resultado.success) {
-        setError(resultado.error || 'Error al registrar el estudiante');
-        return;
-      }
-
-      console.log("Estudiante registrado exitosamente:", resultado.data);
-      setRegistroCompleto(true);
+      setEstado({ cargando: false, exito: true, error: null });
     } catch (err) {
-      console.error('Error inesperado:', err);
-      setError('Ocurrió un error al guardar la matrícula.');
-    } finally {
-      setIsLoading(false);
+      setEstado({ cargando: false, exito: false, error: err.message });
     }
   };
 
-  return {
-    formData,
-    isLoading,
-    error,
-    registroCompleto,
-    handleChange,
-    handleSubmit
-  };
+  return { ...estado, handleSubmit };
 }

@@ -1,25 +1,27 @@
 import { useState } from 'react';
+import { useAuth } from '../funcionalidad/AuthContext';
+import { registrarMatricula } from '../servicios/MatriculaService.js';
 
-export function useMatriculaForm() {
+export default function useMatriculaForm() {
+  const { session } = useAuth();          // contiene userId logueado
   const [formData, setFormData] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [estado, setEstado]   = useState({ loading: false, exito: false, error: null });
 
-  const handleChange = (campo, valor) => {
+  const handleChange = (campo, valor) =>
     setFormData(prev => ({ ...prev, [campo]: valor }));
-  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Datos de matrícula:', formData);
-    // Aquí iría la lógica para EstudianteService más adelante
+     console.log('📦 payload que sale del formulario →', formData);
+    setEstado({ loading: true, exito: false, error: null });
+    try {
+      await registrarMatricula(formData, session.userId);
+      setEstado({ loading: false, exito: true, error: null });
+      setFormData({});
+    } catch (err) {
+      setEstado({ loading: false, exito: false, error: err.message });
+    }
   };
 
-  return {
-    formData,
-    isLoading,
-    error,
-    handleChange,
-    handleSubmit
-  };
+  return { ...estado, formData, handleChange, handleSubmit };
 }
