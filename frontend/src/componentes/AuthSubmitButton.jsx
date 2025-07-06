@@ -1,3 +1,4 @@
+import React from 'react';
 function AuthSubmitButton({ isLoading, loadingText, defaultText }) {
   return (
     <button type="submit" disabled={isLoading}>
