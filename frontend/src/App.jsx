@@ -1,24 +1,16 @@
 import { useEffect } from 'react';
 import { HashRouter, Link, Routes, Route } from "react-router-dom";
-import enumService from './servicios/EnumService.js';
-
-import Home from "./paginas/Home";
-import Login from "./paginas/Login";
-import Register from "./paginas/Register";
-import Formulario from "./paginas/Formulario";
-import Test from "./paginas/Test";
-import Perfil from './paginas/Perfil.jsx';
-import Chatbot from './componentes/Chatbot.jsx';
+import { enumService } from './services';
+import { Home, Login, Register, Formulario, Perfil } from './pages';
+import { Chatbot } from './components';
 
 export default function App() {
     useEffect(() => {
-        // Iniciar la precarga de enumeraciones en segundo plano
-        enumService.preloadAll().then(() => {
-            console.log('Enumeraciones precargadas exitosamente');
-        }).catch((error) => {
-            console.warn('Error durante la precarga de enumeraciones:', error);
-        });
+        enumService.preloadAll()
+            .then(() => console.log('Enumeraciones precargadas'))
+            .catch(error => console.warn('Error precargando enumeraciones:', error));
     }, []);
+
     return (
         <HashRouter>
             <nav>
@@ -34,11 +26,10 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/formulario" element={<Formulario />} />
-                <Route path="/test" element={<Test />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="*" element={<h2>404 - Página no encontrada</h2>} />
             </Routes>
             <Chatbot />
         </HashRouter>
-    )
+    );
 }

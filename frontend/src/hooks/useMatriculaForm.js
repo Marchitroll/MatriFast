@@ -1,27 +1,34 @@
+/**
+ * Hook para manejar el formulario de matrícula
+ */
 import { useState } from 'react';
-import { useAuth } from '../funcionalidad/AuthContext';
-import { registrarMatricula } from '../servicios/MatriculaService.js';
+import { useAuth } from '../context/AuthContext';
 
 export default function useMatriculaForm() {
-  const { session } = useAuth();          // contiene userId logueado
+  const { session } = useAuth();
   const [formData, setFormData] = useState({});
-  const [estado, setEstado]   = useState({ loading: false, exito: false, error: null });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleChange = (campo, valor) =>
+  const handleChange = (campo, valor) => {
     setFormData(prev => ({ ...prev, [campo]: valor }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-     console.log('📦 payload que sale del formulario →', formData);
-    setEstado({ loading: true, exito: false, error: null });
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      await registrarMatricula(formData, session.userId);
-      setEstado({ loading: false, exito: true, error: null });
+      // TODO: Implementar registrarMatricula cuando se refactorice MatriculaService
+      console.log('Datos de matrícula:', formData);
       setFormData({});
     } catch (err) {
-      setEstado({ loading: false, exito: false, error: err.message });
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return { ...estado, formData, handleChange, handleSubmit };
+  return { formData, isLoading, error, handleChange, handleSubmit };
 }

@@ -1,9 +1,10 @@
 /**
- * Hook personalizado para manejar el formulario de registro
+ * Hook para manejar el formulario de registro
+ * Refactorizado para usar nuevos servicios
  */
 import { useState } from 'react';
-import { useAuth } from '../funcionalidad/AuthContext';
-import UsuarioService from '../servicios/UsuarioService';
+import { useAuth } from '../context/AuthContext';
+import { usuarioService } from '../services';
 
 export function useRegisterForm() {
   const [email, setEmail] = useState('');
@@ -13,72 +14,40 @@ export function useRegisterForm() {
   const [roleSpecificData, setRoleSpecificData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [registroCompleto, setRegistroCompleto] = useState(false);
   const { validarEmail, validarPassword, registrarNuevoUsuario } = useAuth();
-  // Instancia del servicio de usuario
-  const usuarioService = new UsuarioService();
 
-  /**
-   * Actualiza los datos específicos del rol
-   */
   const handleRoleSpecificDataChange = (field, value) => {
     setRoleSpecificData(prev => ({ ...prev, [field]: value }));
   };
 
-  /**
-   * Cambia el rol seleccionado y limpia los datos específicos
-   */
   const handleRoleChange = (e) => {
     setRole(e.target.value);
-    setRoleSpecificData({}); // Reiniciar datos específicos al cambiar de rol
+    setRoleSpecificData({});
   };
 
-  /**
-   * Valida los campos comunes del formulario de registro
-   */
-  const validarCamposComunes = () => {    if (!validarEmail(email)) {
-      return { esValido: false, mensaje: 'El formato del correo electrónico no es válido.' };
-    }
-    
-    if (!validarPassword(password)) {
-      return { esValido: false, mensaje: 'La contraseña debe tener más de 6 caracteres.' };
-    }
-    
-    if (password !== confirmPassword) {
-      return { esValido: false, mensaje: 'Las contraseñas no coinciden.' };
-    }
-    
-    if (!role) {
-      return { esValido: false, mensaje: 'Debe seleccionar un rol.' };
-    }
-    
-    return { esValido: true, mensaje: null };
-  };  /**
-   * Maneja el envío del formulario
-   */
+  const validarCampos = () => {
+    if (!validarEmail(email)) return 'El formato del correo electrónico no es válido.';
+    if (!validarPassword(password)) return 'La contraseña debe tener más de 6 caracteres.';
+    if (password !== confirmPassword) return 'Las contraseñas no coinciden.';
+    if (!role) return 'Debe seleccionar un rol.';
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
     
     try {
-      // 1. Validar campos comunes
-      const { esValido: camposComunesValidos, mensaje: mensajeCamposComunes } = validarCamposComunes();
-      if (!camposComunesValidos) {
-        setError(mensajeCamposComunes);
+      const errorValidacion = validarCampos();
+      if (errorValidacion) {
+        setError(errorValidacion);
         return;
       }
       
-      // 2. Datos completos para el registro
-      const datosCompletos = {
-        email,
-        password,
-        role
-      };
-      
-      // 3. NUEVO: Validación completa y persistencia PRIMERO
-      const resultado = await usuarioService.registrarUsuarioCompleto(
-        datosCompletos, 
+      // Registrar usuario en BD
+      const resultado = await usuarioService.registrar(
+        { email, password, role },
         roleSpecificData
       );
       
@@ -87,45 +56,27 @@ export function useRegisterForm() {
         return;
       }
       
-      console.log('Datos persistidos exitosamente:', resultado.data);
-      
-      // 4. SOLO SI TODO SALE BIEN: Crear en Auth
+      // Crear en Auth
       const authResult = await registrarNuevoUsuario(email, password);
-      
       if (!authResult.success) {
-        setError('Los datos fueron guardados correctamente, pero hubo un problema con la autenticación. Contacte soporte técnico con este código: REG-AUTH-ERR');
-        console.error('Error en Auth post-persistencia:', {
-          idUsuario: resultado.data.idUsuario,
-          error: authResult.error,
-          timestamp: new Date().toISOString()      });
+        setError('Datos guardados, pero hubo un problema con la autenticación. Contacte soporte.');
         return;
       }
       
-      console.log('Usuario registrado en Auth:', authResult.data);
-      
-      // 5. Registro completado exitosamente
-      setRegistroCompleto(true);
-      console.log('Registro completo exitoso');
-      
-    } catch (error) {
-      console.error('Error inesperado en el registro:', error);
+      console.log('Registro completado exitosamente');
+    } catch (err) {
       setError('Error inesperado. Contacte soporte técnico.');
     } finally {
       setIsLoading(false);
     }
   };
+
   return {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    confirmPassword,
-    setConfirmPassword,
-    role,
-    roleSpecificData,
-    isLoading,
-    error,
-    registroCompleto,
+    email, setEmail,
+    password, setPassword,
+    confirmPassword, setConfirmPassword,
+    role, roleSpecificData,
+    isLoading, error,
     handleRoleChange,
     handleRoleSpecificDataChange,
     handleSubmit

@@ -1,116 +1,54 @@
 /**
- * Hook personalizado para cargar y usar enumeraciones de forma asíncrona.
- * Proporciona estados de carga, error y datos para cada enumeración.
+ * Hook simplificado para cargar enumeraciones usando el servicio centralizado
+ * Sigue principio DRY - usa enumService que ya tiene caché
  */
-
 import { useState, useEffect } from 'react';
-import enumService from '../servicios/EnumService.js';
+import enumService from '../services/EnumService';
 
-/**
- * Hook para cargar una enumeración específica
- * @param {string} enumType - Tipo de enumeración a cargar
- * @param {Array} defaultValues - Valores por defecto en caso de error
- * @returns {Object} - { data, loading, error }
- */
-export function useEnum(enumType, defaultValues = []) {
-  const [data, setData] = useState(defaultValues);
+const defaultEnums = {
+  sexos: ['M', 'F'],
+  tiposDocumento: ['DNI', 'CE', 'PTP'],
+  tiposRelacion: ['PADRE', 'MADRE', 'TUTOR', 'ABUELO', 'HERMANO'],
+  roles: ['DOCENTE', 'REPRESENTANTE LEGAL'],
+  modalidades: ['PRESENCIAL', 'VIRTUAL', 'SEMIPRESENCIAL'],
+};
+
+function useEnums() {
+  const [enums, setEnums] = useState(defaultEnums);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadEnum = async () => {
+    let isMounted = true;
+
+    const cargarEnums = async () => {
       try {
-        let result;
-        switch (enumType) {
-          case 'tiposRelacion':
-            result = await enumService.getTiposRelacion();
-            break;
-          case 'tiposDocumento':
-            result = await enumService.getTiposDocumento();
-            break;
-          case 'rolesUsuario':
-            result = await enumService.getRolesUsuario();
-            break;
-          case 'sexos':
-            result = await enumService.getSexos();
-            break;
-          case 'modalidades':
-            result = await enumService.getModalidades();
-            break;
-          default:
-            throw new Error(`Tipo de enumeración no válido: ${enumType}`);
+        const [sexos, tiposDocumento, tiposRelacion, roles, modalidades] = await Promise.all([
+          enumService.getSexos(),
+          enumService.getTiposDocumento(),
+          enumService.getTiposRelacion(),
+          enumService.getRolesUsuario(),
+          enumService.getModalidades(),
+        ]);
+
+        if (isMounted) {
+          setEnums({ sexos, tiposDocumento, tiposRelacion, roles, modalidades });
         }
-        setData(result);
       } catch (err) {
-        setError(err.message);
-        console.warn(`Error cargando ${enumType}, usando valores por defecto:`, err);
-        setData(defaultValues);
+        if (isMounted) {
+          setError(err.message);
+          console.warn('Error cargando enums, usando valores por defecto:', err);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
-    loadEnum();
-  }, [enumType, defaultValues]);
+    cargarEnums();
+    return () => { isMounted = false; };
+  }, []);
 
-  return { data, loading, error };
+  return { ...enums, loading, error };
 }
 
-/**
- * Hook para cargar múltiples enumeraciones de una vez
- * @param {Object} enumConfig - Configuración de enumeraciones { enumType: defaultValues }
- * @returns {Object} - { data: {enumType: values}, loading, error }
- */
-export function useEnums(enumConfig) {
-  const [data, setData] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const loadEnums = async () => {
-      try {
-        const promises = Object.entries(enumConfig).map(async ([enumType, defaultValues]) => {
-          let result;
-          switch (enumType) {
-            case 'tiposRelacion':
-              result = await enumService.getTiposRelacion();
-              break;
-            case 'tiposDocumento':
-              result = await enumService.getTiposDocumento();
-              break;
-            case 'rolesUsuario':
-              result = await enumService.getRolesUsuario();
-              break;
-            case 'sexos':
-              result = await enumService.getSexos();
-              break;
-            case 'modalidades':
-              result = await enumService.getModalidades();
-              break;
-            default:
-              throw new Error(`Tipo de enumeración no válido: ${enumType}`);
-          }
-          return [enumType, result];
-        });
-
-        const results = await Promise.all(promises);
-        const enumData = Object.fromEntries(results);
-        setData(enumData);
-      } catch (err) {
-        setError(err.message);
-        console.warn('Error cargando enumeraciones, usando valores por defecto:', err);
-        // Usar valores por defecto en caso de error
-        const defaultData = Object.fromEntries(
-          Object.entries(enumConfig).map(([enumType, defaultValues]) => [enumType, defaultValues])
-        );
-        setData(defaultData);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadEnums();
-  }, [enumConfig]);
-
-  return { data, loading, error };
-}
+export default useEnums;
