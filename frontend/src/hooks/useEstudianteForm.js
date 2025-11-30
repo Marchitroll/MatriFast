@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import usuarioService from '../servicios/UsuarioService';
+import { usuarioService } from '../services';
 
 /**
  * Hook para registrar un estudiante (sin crear cuenta Auth).
