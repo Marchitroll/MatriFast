@@ -2,8 +2,8 @@
 
 [![Tests](https://img.shields.io/badge/tests-209%20passed-brightgreen)](https://github.com/Marchitroll/MatriFast)
 [![Coverage](https://img.shields.io/badge/coverage-35%25-yellow)](https://github.com/Marchitroll/MatriFast)
-[![React](https://img.shields.io/badge/React-19.2.0-61dafb)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-7.2.4-646cff)](https://vitejs.dev/)
+[![React](https://img.shields.io/badge/React-19.2.6-61dafb)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-7.3.3-646cff)](https://vitejs.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 > Sistema de gestión de matrículas escolares para el sistema educativo peruano 🇵🇪
@@ -49,14 +49,17 @@
 # Clonar e instalar
 git clone https://github.com/Marchitroll/MatriFast.git
 cd MatriFast/frontend
-npm install
+corepack pnpm install
 
 # Configurar variables de entorno (ver sección correspondiente)
 cp .env.example .env
 
 # Ejecutar en desarrollo
-npm run dev
+corepack pnpm run dev
 ```
+
+Importante: los comandos de desarrollo se ejecutan dentro de `frontend/`; la raíz del repo no contiene `package.json`.
+Usamos `corepack pnpm` para ejecutar siempre la versión de pnpm declarada en el proyecto, sin depender de una instalación global distinta en cada equipo.
 
 La aplicación estará disponible en `http://localhost:5173`
 
@@ -66,12 +69,12 @@ La aplicación estará disponible en `http://localhost:5173`
 
 | Categoría | Tecnología | Versión |
 |-----------|------------|---------|
-| Frontend | React | 19.2.0 |
-| Build Tool | Vite | 7.2.4 |
-| Routing | React Router DOM | 7.9.6 |
-| Backend | Supabase (PostgreSQL + Auth) | 2.86.0 |
-| Testing | Vitest + Testing Library | 4.0.14 |
-| Cobertura | @vitest/coverage-v8 | 4.0 |
+| Frontend | React | 19.2.6 |
+| Build Tool | Vite | 7.3.3 |
+| Routing | React Router DOM | 7.15.0 |
+| Backend | Supabase (PostgreSQL + Auth) | 2.105.4 |
+| Testing | Vitest 4.1.6 + Testing Library 16.3.2 |
+| Cobertura | @vitest/coverage-v8 | 4.1.6 |
 | Utilidades | peru-utils | 3.2.0 |
 | Chatbot | Google Gemini API | 1.5-flash |
 
@@ -313,10 +316,10 @@ test/
 ### Comandos de Testing
 
 ```powershell
-npm test              # Tests en modo watch
-npm run test:ui       # Interfaz visual de Vitest
-npm run test:run      # Ejecutar una vez
-npm run test:coverage # Generar reporte de cobertura
+corepack pnpm test              # Tests en modo watch
+corepack pnpm run test:ui       # Interfaz visual de Vitest
+corepack pnpm run test:run      # Ejecutar una vez
+corepack pnpm run test:coverage # Generar reporte de cobertura
 ```
 
 ---
@@ -348,14 +351,14 @@ VITE_GEMINI_API_KEY=tu_api_key_de_gemini
 
 | Comando | Descripción |
 |---------|-------------|
-| `npm run dev` | Servidor de desarrollo (`http://localhost:5173`) |
-| `npm run build` | Compilar para producción |
-| `npm run preview` | Vista previa del build de producción |
-| `npm test` | Ejecutar tests en modo watch |
-| `npm run test:ui` | Tests con interfaz visual de Vitest |
-| `npm run test:run` | Ejecutar tests una sola vez |
-| `npm run test:coverage` | Tests con reporte de cobertura |
-| `npm run lint` | Verificar código con ESLint 9 |
+| `corepack pnpm run dev` | Servidor de desarrollo (`http://localhost:5173`) |
+| `corepack pnpm run build` | Compilar para producción |
+| `corepack pnpm run preview` | Vista previa del build de producción |
+| `corepack pnpm test` | Ejecutar tests en modo watch |
+| `corepack pnpm run test:ui` | Tests con interfaz visual de Vitest |
+| `corepack pnpm run test:run` | Ejecutar tests una sola vez |
+| `corepack pnpm run test:coverage` | Tests con reporte de cobertura |
+| `corepack pnpm run lint` | Verificar código con ESLint 9 |
 
 ---
 
@@ -380,11 +383,12 @@ VITE_GEMINI_API_KEY=tu_api_key_de_gemini
 
 ```json
 {
-  "react": "^19.2.0",
-  "react-dom": "^19.2.0",
-  "react-router-dom": "^7.9.6",
-  "@supabase/supabase-js": "^2.86.0",
+  "react": "^19.2.6",
+  "react-dom": "^19.2.6",
+  "react-router-dom": "^7.15.0",
+  "@supabase/supabase-js": "^2.105.4",
   "@supabase/auth-ui-react": "^0.4.7",
+  "prop-types": "^15.8.1",
   "peru-utils": "^3.2.0"
 }
 ```
@@ -396,12 +400,12 @@ VITE_GEMINI_API_KEY=tu_api_key_de_gemini
 
 ```json
 {
-  "vite": "^7.2.4",
-  "vitest": "^4.0.14",
-  "@testing-library/react": "^16.3.0",
+  "vite": "^7.3.3",
+  "vitest": "^4.1.6",
+  "@testing-library/react": "^16.3.2",
   "@testing-library/jest-dom": "^6.9.1",
-  "@vitest/coverage-v8": "4.0",
-  "eslint": "^9.39.1",
+  "@vitest/coverage-v8": "^4.1.6",
+  "eslint": "^9.39.4",
   "gh-pages": "^6.3.0"
 }
 ```

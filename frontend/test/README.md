@@ -29,13 +29,13 @@ Actualmente tenemos:
 3. Ejecuta uno de estos comandos:
    ```bash
    # Ejecutar todos los tests
-   npm test
+  corepack pnpm test
 
    # Ejecutar tests una sola vez (sin modo watch)
-   npm run test:run
+  corepack pnpm run test:run
 
    # Ejecutar tests con interfaz visual
-   npm run test:ui
+  corepack pnpm run test:ui
    ```
 
 ### Desde VS Code
