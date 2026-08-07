@@ -1,28 +1,37 @@
-# Node modules
-node_modules/
-**/node_modules/
-
 # Logs
-logs/
+logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Build output
-dist/
-build/
-frontend/dist/
-backend/dist/
+# Node & Build Outputs
+node_modules
+dist
+dist-ssr
+coverage
+.vite
+.cache
+.eslintcache
 
-# Environment files
+# Environment & Local Configuration
 .env
-.env.*
-
-# IDEs y sistema
-.vscode/
-.DS_Store
-Thumbs.db
-
-# Otros
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 *.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
